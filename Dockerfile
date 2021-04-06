@@ -1,14 +1,6 @@
-FROM alpine:3.12
+FROM viktorstrate/photoview:2.3.0
 
-RUN apk update
-RUN apk add tini
+ADD ./docker_entrypoint.sh /app/docker_entrypoint.sh
+RUN chmod a+x /app/docker_entrypoint.sh
 
-ADD ./hello-world/target/armv7-unknown-linux-musleabihf/release/hello-world /usr/local/bin/hello-world
-ADD ./docker_entrypoint.sh /usr/local/bin/docker_entrypoint.sh
-RUN chmod a+x /usr/local/bin/docker_entrypoint.sh
-
-WORKDIR /root
-
-EXPOSE 80
-
-ENTRYPOINT ["/usr/local/bin/docker_entrypoint.sh"]
+ENTRYPOINT ["/app/docker_entrypoint.sh"]
