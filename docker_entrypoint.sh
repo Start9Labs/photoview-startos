@@ -21,7 +21,7 @@ mariadb_child=$!
 
 while ! mysql -e '' 2> /dev/null; do
   echo 'waiting for mariadb to start...'
-  sleep 2
+  sh -c "sleep 2"
 done
 
 if ! mysqlshow photoview > /dev/null 2>&1; then
