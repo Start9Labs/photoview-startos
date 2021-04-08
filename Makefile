@@ -16,5 +16,5 @@ photoview.s9pk: manifest.yaml config_spec.yaml config_rules.yaml image.tar instr
 image.tar: Dockerfile docker_entrypoint.sh
 	DOCKER_CLI_EXPERIMENTAL=enabled docker buildx build --tag start9/photoview --platform=linux/arm/v7 -o type=docker,dest=image.tar .
 
-# manifest.yaml: Dockerfile
-# 	yq e -i '.version = $(VERSION)' manifest.yaml
+manifest.yaml: Dockerfile
+	yq e -i '.version = $(VERSION)' manifest.yaml
