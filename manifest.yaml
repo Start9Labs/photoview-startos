@@ -5,7 +5,7 @@ title: Photoview
 description:
   short: "Photo gallery for self-hosted personal servers."
   long: "Photoview is a simple and user-friendly photo gallery that's made for photographers and aims to provide an easy and fast way to navigate directories, with thousands of high resolution photos."
-release-notes: See https://github.com/photoview/photoview/releases
+release-notes: https://github.com/photoview/photoview/releases/tag/v2.3.0
 ports:
   - internal: 80
     tor: 80
@@ -13,8 +13,8 @@ image:
   type: tar
 mount: /media
 has-instructions: true
-os-version-required: ">=0.2.4"
-os-version-recommended: ">=0.2.4"
+os-version-required: ">=0.2.12"
+os-version-recommended: ">=0.2.12"
 assets: []
 hidden-service-version: v3
 dependencies:
