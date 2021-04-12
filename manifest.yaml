@@ -11,7 +11,7 @@ ports:
     tor: 80
 image:
   type: tar
-mount: /root/persistance
+mount: /media
 has-instructions: true
 os-version-required: ">=0.2.4"
 os-version-recommended: ">=0.2.4"

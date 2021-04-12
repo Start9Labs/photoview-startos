@@ -5,7 +5,7 @@
 When you visit the site the first time you will be presented with an "Initial Setup Wizard"
 that asks for a username and a pasword as well as a "Photo path".
 
-Media from the File Browser service can be accessed at `/root/persistance/start9/public/filebrowser`.
+Media from the File Browser service can be accessed at `/media/start9/public/filebrowser`.
 For a quick set up you can set the "Photo path" to this path and you will have acces to all your media.
 You can always change this later from the Settings
 
