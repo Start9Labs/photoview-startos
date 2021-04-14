@@ -13,8 +13,8 @@ export PHOTOVIEW_LISTEN_PORT=80
 export PHOTOVIEW_DATABASE_DRIVER="sqlite"
 export PHOTOVIEW_SQLITE_PATH="/media/photoview.db"
 
-echo /media/start9/public > /media/.backupignore
-echo /media/start9/shared >> /media/.backupignore
+echo start9/public > .backupignore
+echo start9/shared >> .backupignore
 
 yq e -n '.type = "string"' > /media/start9/stats.yaml
 yq e -i '.value = "/media/start9/public/filebrowser"' /media/start9/stats.yaml
