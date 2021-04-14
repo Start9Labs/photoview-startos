@@ -1,17 +1,10 @@
-# Photoview instructions
+# Photoview Instructions
 
-## Initial setup
+## Initial Setup
 
-When you visit the site the first time you will be presented with an "Initial Setup Wizard"
-that asks for a username and a password as well as a "Photo path".
+1. When you visit your Photoview website the first time you will be presented with an "Initial Setup Wizard" that asks for username, password, and "Photo Path". You can find the default Photo Path inside the "Properties" section of your Photoview service. Using this default path will grant your Photoview admin user access to all media files inside File Browser. If you only wish to use a subset of your File Browser data, you can append to the default path your desired sub directory. You can always change this later inside the settings menu of your Photoview website.
 
-Media from the File Browser service can be accessed at `/media/start9/public/filebrowser`.
-This can be copied from the "Properties" section of Photoview.
-For a quick set up you can set the "Photo path" to this path and you will have access to all your media.
-You can always change this later from the Settings.
-If you only wish to scan a subset of your filebrowser data, you can use the location above as a prefix and add any subfolders you wish.
-
-After initial setup, go to the Settings page and click on "Scan all" your media will then appear in the app as it is scanned.
+2. Go to the Settings page and click on "Scan all" your media will then appear in the app as it is scanned.
 
 ## Usage
 

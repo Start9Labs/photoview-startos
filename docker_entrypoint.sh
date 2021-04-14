@@ -15,11 +15,11 @@ export PHOTOVIEW_SQLITE_PATH="/media/photoview.db"
 
 yq e -n '.type = "string"' > /media/start9/stats.yaml
 yq e -i '.value = "/media/start9/public/filebrowser"' /media/start9/stats.yaml
-yq e -i '.description = "Filebrowser base directory location to initialize your Photoview app"' /media/start9/stats.yaml
+yq e -i '.description = "The File Browser base directory to scan for media files."' /media/start9/stats.yaml
 yq e -i '.copyable = true' /media/start9/stats.yaml
 yq e -i '.qr = false' /media/start9/stats.yaml
 yq e -i '.masked = false' /media/start9/stats.yaml
-yq e -i '{ "Photo Root": . }' /media/start9/stats.yaml
+yq e -i '{ "Photo Path": . }' /media/start9/stats.yaml
 yq e -i '{ "data": . }' /media/start9/stats.yaml
 yq e -i '.version = 2' /media/start9/stats.yaml
 
