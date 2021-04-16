@@ -1,6 +1,6 @@
-# Wrapper for hello-world
+# Wrapper for Photoview
 
-`hello-world` is a simple, minimal project to serve as a template for creating an app for the Embassy.
+This project wraps [Photoview](https://github.com/photoview/photoview) for EmbassyOS.
 
 ## Dependencies
 
