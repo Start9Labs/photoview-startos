@@ -22,3 +22,12 @@ dependencies:
     version: ">=2.14.1"
     description: Used to get media from File Browser
     mount-public: true
+actions:
+  - id: reset-admin
+    name: Reset Admin Password
+    description: Regenerates and sets the admin password.
+    warning: This will invalidate existing sessions and password managers if you have them set up.
+    allowed-statuses:
+      - STOPPED
+    command:
+      - reset-admin.sh

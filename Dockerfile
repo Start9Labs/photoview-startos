@@ -11,6 +11,8 @@ RUN apt-get update \
 RUN wget https://github.com/mikefarah/yq/releases/download/v4.6.3/yq_linux_arm.tar.gz -O - |\
   tar xz && mv yq_linux_arm /usr/bin/yq
 
+ADD ./reset-admin.sh /usr/local/bin/reset-admin.sh
+RUN chmod a+x /usr/local/bin/reset-admin.sh
 ADD ./docker_entrypoint.sh /app/docker_entrypoint.sh
 RUN chmod a+x /app/docker_entrypoint.sh
 
