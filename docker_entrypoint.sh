@@ -34,21 +34,27 @@ if [ -z $USERS ]; then
   yq e -i '.qr = false' /media/start9/stats.yaml
   yq e -i '.masked = true' /media/start9/stats.yaml
   yq e -i '{ "Password": . }' /media/start9/stats.yaml
+  yq e -i '.Username.type = "string"' /media/start9/stats.yaml
+  yq e -i '.Username.value = "admin"' /media/start9/stats.yaml
+  yq e -i '.Username.description = "Default useraname for Photoview, if you changed this in teh Photoview web application, it will no longer work"' /media/start9/stats.yaml
+  yq e -i '.Username.copyable = true' /media/start9/stats.yaml
+  yq e -i '.Username.qr = false' /media/start9/stats.yaml
+  yq e -i '.Username.masked = false' /media/start9/stats.yaml
   yq e -i '{ "data": . }' /media/start9/stats.yaml
   yq e -i '.version = 2' /media/start9/stats.yaml
 
   echo INSERTING INITIAL USER
   export PASS_HASH=$(htpasswd -bnBC 12 "" $PASS | tr -d ':\n' | sed 's/$2y/$2a/')
-  sqlite3 $PHOTOVIEW_SQLITE_PATH "insert into users (id, created_at, updated_at, username, password, admin) values (1, date('now'), date('now'), 'admin', '$PASS_HASH', true);"
+  sqlite3 $PHOTOVIEW_SQLITE_PATH "insert into users (id, created_at, updated_at, username, password, admin) values (1, datetime('now'), datetime('now'), 'admin', '$PASS_HASH', true);"
   while [ $? -ne 0 ]; do
-    sqlite3 $PHOTOVIEW_SQLITE_PATH "insert into users (id, created_at, updated_at, username, password, admin) values (1, date('now'), date('now'), 'admin', '$PASS_HASH', true);"
+    sqlite3 $PHOTOVIEW_SQLITE_PATH "insert into users (id, created_at, updated_at, username, password, admin) values (1, datetime('now'), datetime('now'), 'admin', '$PASS_HASH', true);"
   done
 
   echo INSERTING INITIAL ALBUM
   export PATH_MD5=$(echo -n /media/start9/public/filebrowser | md5sum | head -c 32)
-  sqlite3 $PHOTOVIEW_SQLITE_PATH "insert into albums (id, created_at, updated_at, title, parent_album_id, path, path_hash) values (1, date('now'), date('now'), 'filebrowser', NULL, '/media/start9/public/filebrowser', '$PATH_MD5');"
+  sqlite3 $PHOTOVIEW_SQLITE_PATH "insert into albums (id, created_at, updated_at, title, parent_album_id, path, path_hash) values (1, datetime('now'), datetime('now'), 'filebrowser', NULL, '/media/start9/public/filebrowser', '$PATH_MD5');"
   while [ $? -ne 0 ]; do
-    sqlite3 $PHOTOVIEW_SQLITE_PATH "insert into albums (id, created_at, updated_at, title, parent_album_id, path, path_hash) values (1, date('now'), date('now'), 'filebrowser', NULL, '/media/start9/public/filebrowser', '$PATH_MD5');"
+    sqlite3 $PHOTOVIEW_SQLITE_PATH "insert into albums (id, created_at, updated_at, title, parent_album_id, path, path_hash) values (1, datetime('now'), datetime('now'), 'filebrowser', NULL, '/media/start9/public/filebrowser', '$PATH_MD5');"
   done
 
   echo INSERTING USER ALBUM JOIN
