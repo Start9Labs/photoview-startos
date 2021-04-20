@@ -8,13 +8,13 @@ yq e -i '.description = "Default password for Photoview, if you changed this in 
 yq e -i '.copyable = true' /media/start9/stats.yaml
 yq e -i '.qr = false' /media/start9/stats.yaml
 yq e -i '.masked = true' /media/start9/stats.yaml
-yq e -i '{ "Password": . }' /media/start9/stats.yaml
-yq e -i '.Username.type = "string"' /media/start9/stats.yaml
-yq e -i '.Username.value = "admin"' /media/start9/stats.yaml
-yq e -i '.Username.description = "Default useraname for Photoview, if you changed this in teh Photoview web application, it will no longer work"' /media/start9/stats.yaml
-yq e -i '.Username.copyable = true' /media/start9/stats.yaml
-yq e -i '.Username.qr = false' /media/start9/stats.yaml
-yq e -i '.Username.masked = false' /media/start9/stats.yaml
+yq e -i '{ "Default Password": . }' /media/start9/stats.yaml
+yq e -i '.["Default Username"].type = "string"' /media/start9/stats.yaml
+yq e -i '.["Default Username"].value = "admin"' /media/start9/stats.yaml
+yq e -i '.["Default Username"].description = "Default useraname for Photoview, if you changed this in teh Photoview web application, it will no longer work"' /media/start9/stats.yaml
+yq e -i '.["Default Username"].copyable = true' /media/start9/stats.yaml
+yq e -i '.["Default Username"].qr = false' /media/start9/stats.yaml
+yq e -i '.["Default Username"].masked = false' /media/start9/stats.yaml
 yq e -i '{ "data": . }' /media/start9/stats.yaml
 yq e -i '.version = 2' /media/start9/stats.yaml
 
