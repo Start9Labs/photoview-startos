@@ -27,21 +27,22 @@ if [ -z $USERS ]; then
   echo Seeding initial user
   export PASS=$(cat /dev/urandom | base64 | head -c 16)
 
-  yq e -n '.type = "string"' > /media/start9/stats.yaml
-  yq e -i ".value = \"$PASS\"" /media/start9/stats.yaml
-  yq e -i '.description = "Default password for Photoview, if you changed this in the Photoview web application, it will no longer work"' /media/start9/stats.yaml
-  yq e -i '.copyable = true' /media/start9/stats.yaml
-  yq e -i '.qr = false' /media/start9/stats.yaml
-  yq e -i '.masked = true' /media/start9/stats.yaml
-  yq e -i '{ "Default Password": . }' /media/start9/stats.yaml
-  yq e -i '.["Default Username"].type = "string"' /media/start9/stats.yaml
-  yq e -i '.["Default Username"].value = "admin"' /media/start9/stats.yaml
-  yq e -i '.["Default Username"].description = "Default useraname for Photoview, if you changed this in teh Photoview web application, it will no longer work"' /media/start9/stats.yaml
-  yq e -i '.["Default Username"].copyable = true' /media/start9/stats.yaml
-  yq e -i '.["Default Username"].qr = false' /media/start9/stats.yaml
-  yq e -i '.["Default Username"].masked = false' /media/start9/stats.yaml
-  yq e -i '{ "data": . }' /media/start9/stats.yaml
-  yq e -i '.version = 2' /media/start9/stats.yaml
+  echo 'version: 2' > /media/start9/stats.yaml
+  echo 'data:' >> /media/start9/stats.yaml
+  echo '  Default Username:' >> /media/start9/stats.yaml
+  echo '    type: string' >> /media/start9/stats.yaml
+  echo '    value: admin' >> /media/start9/stats.yaml
+  echo '    description: "Default useraname for Photoview. While it is not necessary, you may change it inside your Photoview application. That change, however will not be reflected here"' >> /media/start9/stats.yaml
+  echo '    copyable: true' >> /media/start9/stats.yaml
+  echo '    qr: false' >> /media/start9/stats.yaml
+  echo '    masked: false' >> /media/start9/stats.yaml
+  echo '  Default Password:' >> /media/start9/stats.yaml
+  echo '    type: string' >> /media/start9/stats.yaml
+  echo '    value: "'"$PASS"'"' >> /media/start9/stats.yaml
+  echo '    description: This is your randomly-generated, default password. While it is not necessary, you may change it inside your Photoview application. That change, however, will not be reflected here.' >> /media/start9/stats.yaml
+  echo '    copyable: true' >> /media/start9/stats.yaml
+  echo '    masked: true' >> /media/start9/stats.yaml
+  echo '    qr: false' >> /media/start9/stats.yaml
 
   echo INSERTING INITIAL USER
   export PASS_HASH=$(htpasswd -bnBC 12 "" $PASS | tr -d ':\n' | sed 's/$2y/$2a/')
