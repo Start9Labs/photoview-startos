@@ -45,29 +45,22 @@ if [ -z $USERS ]; then
   echo '    qr: false' >> /media/start9/stats.yaml
 
   echo INSERTING INITIAL USER
-  export PASS_HASH=$(htpasswd -bnBC 12 "" $PASS | tr -d ':\n' | sed 's/$2y/$2a/')
-  sqlite3 $PHOTOVIEW_SQLITE_PATH "insert into users (id, created_at, updated_at, username, password, admin) values (1, datetime('now'), datetime('now'), 'admin', '$PASS_HASH', true);"
+  PASS_HASH=$(htpasswd -bnBC 12 "" $PASS | tr -d ':\n' | sed 's/$2y/$2a/')
+  PATH_MD5=$(echo -n /media/start9/public/filebrowser | md5sum | head -c 32)
+
+  USER_INSERT="insert into users (id, created_at, updated_at, username, password, admin) values (1, datetime('now'), datetime('now'), 'admin', '$PASS_HASH', true);"
+  ALBUM_INSERT="insert into albums (id, created_at, updated_at, title, parent_album_id, path, path_hash) values (1, datetime('now'), datetime('now'), 'filebrowser', NULL, '/media/start9/public/filebrowser', '$PATH_MD5');"
+  JOIN_INSERT="insert into user_albums (album_id, user_id) values (1, 1);"
+  INFO_UPDATE="update site_info set initial_setup = false;"
+
+  test -f $PHOTOVIEW_SQLITE_PATH
   while [ $? -ne 0 ]; do
-    sqlite3 $PHOTOVIEW_SQLITE_PATH "insert into users (id, created_at, updated_at, username, password, admin) values (1, datetime('now'), datetime('now'), 'admin', '$PASS_HASH', true);"
+    echo "Waiting for database..."
   done
 
-  echo INSERTING INITIAL ALBUM
-  export PATH_MD5=$(echo -n /media/start9/public/filebrowser | md5sum | head -c 32)
-  sqlite3 $PHOTOVIEW_SQLITE_PATH "insert into albums (id, created_at, updated_at, title, parent_album_id, path, path_hash) values (1, datetime('now'), datetime('now'), 'filebrowser', NULL, '/media/start9/public/filebrowser', '$PATH_MD5');"
+  sqlite3 $PHOTOVIEW_SQLITE_PATH "begin; $USER_INSERT $ALBUM_INSERT $JOIN_INSERT $INFO_UPDATE commit;"
   while [ $? -ne 0 ]; do
-    sqlite3 $PHOTOVIEW_SQLITE_PATH "insert into albums (id, created_at, updated_at, title, parent_album_id, path, path_hash) values (1, datetime('now'), datetime('now'), 'filebrowser', NULL, '/media/start9/public/filebrowser', '$PATH_MD5');"
-  done
-
-  echo INSERTING USER ALBUM JOIN
-  sqlite3 $PHOTOVIEW_SQLITE_PATH "insert into user_albums (album_id, user_id) values (1, 1);"
-  while [ $? -ne 0 ]; do
-    sqlite3 $PHOTOVIEW_SQLITE_PATH "insert into user_albums (album_id, user_id) values (1, 1);"
-  done
-
-  echo SETTING SITE INFO
-  sqlite3 $PHOTOVIEW_SQLITE_PATH "update site_info set initial_setup = false;"
-  while [ $? -ne 0 ]; do
-    sqlite3 $PHOTOVIEW_SQLITE_PATH "update site_info set initial_setup = false;"
+    sqlite3 $PHOTOVIEW_SQLITE_PATH "begin; $USER_INSERT $ALBUM_INSERT $JOIN_INSERT $INFO_UPDATE commit;"
   done
 fi
 
