@@ -1,33 +1,86 @@
-compat: v0
 id: photoview
-version: 2.3.0
 title: Photoview
+version: 2.3.0
+release-notes: "Upgrade to EmbassyOS v0.3.0"
+license: gnu
+wrapper-repo: "https://github.com/Start9Labs/embassyos-photoview-wrapper"
+upstream-repo: "https://github.com/photoview/photoview/tree/master"
+build: ["make"]
+min-os-version: "0.3.0"
 description:
-  short: "An easy way to organize and share your personal photos."
-  long: "Photoview is a simple photo gallery, providing an easy way to organize, navigate, and share photos."
-release-notes: https://github.com/photoview/photoview/releases/tag/v2.3.0
-ports:
-  - internal: 80
-    tor: 80
-image:
-  type: tar
-mount: /media
-has-instructions: true
-os-version-required: ">=0.2.12"
-os-version-recommended: ">=0.2.12"
-assets: []
-hidden-service-version: v3
+  short: An easy way to organize and share your personal photos
+  long: |
+    Photoview is a simple photo gallery, providing an easy way to organize, navigate, and share photos.
+assets:
+  license: LICENSE
+  icon: icon.png
+  instructions: instructions.md
+  docker-images: image.tar
+  icon-type: png
+main:
+  type: docker
+  image: main
+  entrypoint: "/usr/local/bin/docker_entrypoint.sh"
+  args: []
+  mounts: {}
+  io-format: yaml
+health-checks: {}
+config:
+  get:
+    type: docker
+    image: compat
+    entrypoint: ""
+  set:
+    type: docker
+    image: compat
+    entrypoint: ""
 dependencies:
   filebrowser:
-    version: ">=2.14.1"
+    version: "^2.15.0"
     description: Used to get media from File Browser
-    mount-public: true
+    critical: false
+volumes:
+  filebrowser:
+    type: pointer
+    package-id: filebrowser
+    volume-id: main
+    path: /root/data
+    readonly: false
+interfaces:
+  main:
+    tor-config:
+      port-mapping:
+        80: "80"
+    ui: true
+    protocols:
+      - tcp
+      - http
+backup:
+  create:
+    type: docker
+    image: compat
+    system: true
+    entrypoint: "true"
+    args: []
+    mounts: {}
+  restore:
+    type: docker
+    image: compat
+    system: true
+    entrypoint: "true"
+    args: []
+    mounts: {}
 actions:
-  - id: reset-admin
+  reset-admin:
     name: Reset Root User
     description: Resets your root user (the first user) to username "admin" and a random password; restores any lost admin privileges.
     warning: This will invalidate existing sessions and password managers if you have them set up.
     allowed-statuses:
-      - STOPPED
-    command:
-      - reset-admin.sh
+      - stopped
+    implementation:
+      type: docker
+      image: compat
+      system: true
+      entrypoint: reset-admin.sh
+      args: []
+      mounts: {}

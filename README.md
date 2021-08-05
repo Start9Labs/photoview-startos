@@ -60,8 +60,10 @@ Now you are ready to build your first EmbassyOS service
 Clone the project locally. Note the submodule link to the original project(s). 
 
 ```
-git clone https://github.com/Start9Labs/hello-world-wrapper.git
-cd hello-world-wrapper
+git clone git@github.com:Start9Labs/embassyos-photoview-wrapper.git
+cd embassyos-photoview-wrapper
+git submodule update --init
+
 ```
 
 ## Building
@@ -79,5 +81,5 @@ SSH into an Embassy device.
 Run the following command to determine successful install:
 
 ```
-sudo appmgr install hello-world.s9pk
+sudo appmgr install photoview.s9pk
 ```
