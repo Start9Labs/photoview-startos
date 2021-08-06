@@ -1,6 +1,6 @@
 id: photoview
 title: Photoview
-version: 2.3.0
+version: 2.3.0.1
 release-notes: "Upgrade to EmbassyOS v0.3.0"
 license: gnu
 wrapper-repo: "https://github.com/Start9Labs/embassyos-photoview-wrapper"
