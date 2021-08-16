@@ -5,6 +5,9 @@ release-notes: "Upgrade to EmbassyOS v0.3.0"
 license: gnu
 wrapper-repo: "https://github.com/Start9Labs/embassyos-photoview-wrapper"
 upstream-repo: "https://github.com/photoview/photoview/tree/master"
+support-site: "https://github.com/photoview/photoview/issues"
+marketing-site: "https://photoview.github.io/"
+donation-url: "https://github.com/sponsors/viktorstrate"
 build: ["make"]
 min-os-version: "0.3.0"
 description:
@@ -22,7 +25,9 @@ main:
   image: main
   entrypoint: "/usr/local/bin/docker_entrypoint.sh"
   args: []
-  mounts: {}
+  mounts: {
+    filebrowser: "/mnt/filebrowser"
+  }
   io-format: yaml
 health-checks: {}
 config:
@@ -38,6 +43,7 @@ dependencies:
   filebrowser:
     version: "^2.15.0"
     description: Used to get media from File Browser
+    recommended: true
     critical: false
 volumes:
   filebrowser:
@@ -46,11 +52,18 @@ volumes:
     volume-id: main
     path: /root/data
     readonly: false
+alerts: {}
 interfaces:
   main:
+    name: Main
+    description: Main image interface configurations
     tor-config:
       port-mapping:
         80: "80"
+    lan-config:
+      80:
+        ssl: false
+        mapping: 80
     ui: true
     protocols:
       - tcp
