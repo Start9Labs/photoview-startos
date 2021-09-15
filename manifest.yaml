@@ -19,44 +19,60 @@ assets:
   icon: icon.png
   instructions: instructions.md
   docker-images: image.tar
-  icon-type: png
 main:
   type: docker
   image: main
   entrypoint: "/usr/local/bin/docker_entrypoint.sh"
   args: []
-  mounts: {
-    filebrowser: "/mnt/filebrowser"
-  }
+  mounts:
+    main: /media
+    filebrowser: /mnt/filebrowser
   io-format: yaml
-health-checks: {}
-config:
-  get:
+health-checks:
+  main: 
     type: docker
-    image: compat
-    entrypoint: ""
-  set:
-    type: docker
-    image: compat
-    entrypoint: ""
+    image: main
+    system: false
+    entrypoint: sh
+    args: ["-c", "echo 'TODO' || exit 1"]
+    mounts:
+      main: /root
+    io-format: yaml
+    critical: false
+config: ~
+properties:
+  type: docker
+  image: compat
+  system: true
+  entrypoint: compat
+  args:
+    - properties
+    - /media
+  mounts:
+    main: /media
+    compat: /mnt/assets
+  io-format: yaml
 dependencies:
   filebrowser:
     version: "^2.15.0"
     description: Used to get media from File Browser
     recommended: true
     critical: false
+    optional: ~
 volumes:
+  main:
+    type: data
   filebrowser:
     type: pointer
     package-id: filebrowser
     volume-id: main
-    path: /root/data
+    path: /root
     readonly: false
 alerts: {}
 interfaces:
-  main:
-    name: Main
-    description: Main image interface configurations
+  network:
+    name: Network Interface
+    description: Specifies the interfaces to listen on for HTTP connections.
     tor-config:
       port-mapping:
         80: "80"
@@ -73,16 +89,30 @@ backup:
     type: docker
     image: compat
     system: true
-    entrypoint: "true"
-    args: []
-    mounts: {}
+    entrypoint: compat
+    args:
+      - duplicity
+      - create
+      - photoview
+      - /mnt/backup
+      - /media
+    mounts:
+      BACKUP: /mnt/backup
+      main: /media
   restore:
     type: docker
     image: compat
     system: true
-    entrypoint: "true"
-    args: []
-    mounts: {}
+    entrypoint: compat
+    args:
+      - duplicity
+      - restore
+      - photoview
+      - /mnt/backup
+      - /media
+    mounts:
+      BACKUP: /mnt/backup
+      main: /media
 actions:
   reset-admin:
     name: Reset Root User
@@ -96,4 +126,5 @@ actions:
       system: true
       entrypoint: reset-admin.sh
       args: []
-      mounts: {}
+      mounts:
+        main: /media
