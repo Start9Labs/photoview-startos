@@ -56,9 +56,9 @@ dependencies:
   filebrowser:
     version: "^2.15.0"
     description: Used to get media from File Browser
-    recommended: true
     critical: false
-    optional: ~
+    requirement:
+      type: required
 volumes:
   main:
     type: data
