@@ -34,7 +34,7 @@ health-checks:
     image: main
     system: false
     entrypoint: sh
-    args: ["-c", "echo 'TODO' || exit 1"]
+    args: ["-c", "curl http://localhost:80 || exit 1"]
     mounts:
       main: /root
     io-format: yaml
