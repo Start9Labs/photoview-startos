@@ -22,7 +22,7 @@ assets:
 main:
   type: docker
   image: main
-  entrypoint: "/usr/local/bin/docker_entrypoint.sh"
+  entrypoint: "/app/docker_entrypoint.sh"
   args: []
   mounts:
     main: /media
