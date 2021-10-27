@@ -32,12 +32,18 @@ health-checks:
   main: 
     type: docker
     image: main
-    system: false
     entrypoint: sh
     args: ["-c", "curl photoview.embassy:80 || exit 1"]
-    mounts:
-      main: /root
     io-format: yaml
+    critical: false
+    inject: true
+  initial-setup: 
+    type: docker
+    image: main
+    entrypoint: sh
+    args: ["-c", "curl 'http://localhost:80/api/graphql' -X POST -H 'Content-Type: application/json' --data-raw '{"operationName":"CheckInitialSetup","variables":{},"query":"query CheckInitialSetup { siteInfo { initialSetup }}"}'"]
+    io-format: yaml
+    inject: true
     critical: false
 config: ~
 properties:
@@ -78,8 +84,8 @@ interfaces:
         80: "80"
     lan-config:
       80:
-        ssl: false
-        mapping: 80
+        ssl: true
+        mapping: 443
     ui: true
     protocols:
       - tcp
@@ -93,12 +99,12 @@ backup:
     args:
       - duplicity
       - create
-      - photoview
       - /mnt/backup
       - /media
     mounts:
       BACKUP: /mnt/backup
       main: /media
+    io-format: yaml
   restore:
     type: docker
     image: compat
@@ -107,12 +113,12 @@ backup:
     args:
       - duplicity
       - restore
-      - photoview
       - /mnt/backup
       - /media
     mounts:
       BACKUP: /mnt/backup
       main: /media
+    io-format: yaml
 actions:
   reset-admin:
     name: Reset Root User
@@ -122,9 +128,8 @@ actions:
       - stopped
     implementation:
       type: docker
-      image: compat
-      system: true
+      image: main
       entrypoint: reset-admin.sh
       args: []
-      mounts:
-        main: /media
+      io-format: json
+      inject: true
