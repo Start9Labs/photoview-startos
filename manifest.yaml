@@ -72,7 +72,7 @@ volumes:
     type: pointer
     package-id: filebrowser
     volume-id: main
-    path: /root
+    path: /data
     readonly: false
 alerts: {}
 interfaces:
