@@ -1,7 +1,8 @@
 #!/bin/bash
 
+# ensure start9 directory exists if action is run before first run of service
+mkdir /media/start9
 export PASS=$(cat /dev/urandom | base64 | head -c 16)
-
 echo 'version: 2' > /media/start9/stats.yaml
 echo 'data:' >> /media/start9/stats.yaml
 echo '  Default Username:' >> /media/start9/stats.yaml

@@ -44,7 +44,7 @@ if [ -z $USERS ]; then
 
   echo INSERTING INITIAL USER
   PASS_HASH=$(htpasswd -bnBC 12 "" $PASS | tr -d ':\n' | sed 's/$2y/$2a/')
-  PATH_MD5=$(echo -n /media/start9/public/filebrowser | md5sum | head -c 32)
+  PATH_MD5=$(echo -n /mnt/filebrowser | md5sum | head -c 32)
 
   USER_INSERT="insert into users (id, created_at, updated_at, username, password, admin) values (1, datetime('now'), datetime('now'), 'admin', '$PASS_HASH', true);"
   ALBUM_INSERT="insert into albums (id, created_at, updated_at, title, parent_album_id, path, path_hash) values (1, datetime('now'), datetime('now'), 'filebrowser', NULL, '/mnt/filebrowser', '$PATH_MD5');"
