@@ -31,3 +31,12 @@ if [ -z $USERS ]; then
   sqlite3 $PHOTOVIEW_SQLITE_PATH "insert or ignore into user_albums (album_id, user_id) values (1,1);"
 fi
 sqlite3 $PHOTOVIEW_SQLITE_PATH "update users set password = '$PASS_HASH', username = 'admin' where id = 1;"
+action_result="    {
+    \"version\": \"0\",
+    \"message\": \"Here is your new password. This will also be reflected in the Properties page for this service.\",
+    \"value\": \"$PASS\",
+    \"copyable\": true,
+    \"qr\": false
+}"
+echo $action_result
+exit 0
