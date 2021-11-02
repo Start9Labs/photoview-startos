@@ -13,9 +13,6 @@ export PHOTOVIEW_LISTEN_PORT=80
 export PHOTOVIEW_DATABASE_DRIVER="sqlite"
 export PHOTOVIEW_SQLITE_PATH="/media/photoview.db"
 
-echo start9/public > .backupignore
-echo start9/shared >> .backupignore
-
 # start photoview executable
 echo 'starting photoview server...'
 /app/photoview &
@@ -26,6 +23,7 @@ export USERS=$(sqlite3 $PHOTOVIEW_SQLITE_PATH 'select * from users;')
 if [ -z $USERS ]; then
   echo Seeding initial user
   export PASS=$(cat /dev/urandom | base64 | head -c 16)
+  mkdir /media/start9
 
   echo 'version: 2' > /media/start9/stats.yaml
   echo 'data:' >> /media/start9/stats.yaml
@@ -49,7 +47,7 @@ if [ -z $USERS ]; then
   PATH_MD5=$(echo -n /media/start9/public/filebrowser | md5sum | head -c 32)
 
   USER_INSERT="insert into users (id, created_at, updated_at, username, password, admin) values (1, datetime('now'), datetime('now'), 'admin', '$PASS_HASH', true);"
-  ALBUM_INSERT="insert into albums (id, created_at, updated_at, title, parent_album_id, path, path_hash) values (1, datetime('now'), datetime('now'), 'filebrowser', NULL, '/media/start9/public/filebrowser', '$PATH_MD5');"
+  ALBUM_INSERT="insert into albums (id, created_at, updated_at, title, parent_album_id, path, path_hash) values (1, datetime('now'), datetime('now'), 'filebrowser', NULL, '/mnt/filebrowser', '$PATH_MD5');"
   JOIN_INSERT="insert into user_albums (album_id, user_id) values (1, 1);"
   INFO_UPDATE="update site_info set initial_setup = false;"
 
