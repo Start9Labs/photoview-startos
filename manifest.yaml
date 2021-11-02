@@ -41,7 +41,7 @@ health-checks:
     type: docker
     image: main
     entrypoint: sh
-    args: ["-c", "\"curl 'http://localhost:80/api/graphql' -X POST -H 'Content-Type: application/json' --data-raw '{\"operationName\":\"CheckInitialSetup\",\"variables\":{},\"query\":\"query CheckInitialSetup { siteInfo { initialSetup }}\"}'\""]
+    args: ["-c", "\"curl 'photoview.embassy:80/api/graphql' -X POST -H 'Content-Type: application/json' --data-raw '{\"operationName\":\"CheckInitialSetup\",\"variables\":{},\"query\":\"query CheckInitialSetup { siteInfo { initialSetup }}\"}'\""]
     io-format: yaml
     inject: true
     critical: false
