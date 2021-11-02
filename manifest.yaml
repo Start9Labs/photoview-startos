@@ -60,7 +60,7 @@ properties:
   io-format: yaml
 dependencies:
   filebrowser:
-    version: "^2.15.0"
+    version: "^2.14.1.1"
     description: Used to get media from File Browser
     critical: false
     requirement:
