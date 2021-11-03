@@ -29,7 +29,7 @@ main:
     filebrowser: /mnt/filebrowser
   io-format: yaml
 health-checks:
-  main: 
+  interface: 
     type: docker
     image: main
     entrypoint: sh
