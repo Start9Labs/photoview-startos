@@ -23,7 +23,7 @@ export USERS=$(sqlite3 $PHOTOVIEW_SQLITE_PATH 'select * from users;')
 if [ -z $USERS ]; then
   echo Seeding initial user
   export PASS=$(cat /dev/urandom | base64 | head -c 16)
-  mkdir /media/start9
+  mkdir -p /media/start9
 
   echo 'version: 2' > /media/start9/stats.yaml
   echo 'data:' >> /media/start9/stats.yaml
