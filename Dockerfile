@@ -1,4 +1,4 @@
-FROM viktorstrate/photoview:2.3.0
+FROM viktorstrate/photoview:2.3.9
 
 # Install mariadb mysql database server
 RUN apt-get update \
