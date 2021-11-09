@@ -2,7 +2,7 @@ FROM viktorstrate/photoview:2.3.9
 
 # Install mariadb mysql database server
 RUN apt-get update \
-  && apt-get install -y mariadb-server wget sqlite3 apache2-utils curl \
+  && apt-get install -y mariadb-server wget sqlite3 apache2-utils curl tini \
   # Cleanup
   && apt-get autoremove -y \
   && apt-get clean \
@@ -16,4 +16,4 @@ RUN chmod a+x /usr/local/bin/reset-admin.sh
 ADD ./docker_entrypoint.sh /app/docker_entrypoint.sh
 RUN chmod a+x /app/docker_entrypoint.sh
 
-ENTRYPOINT ["/app/docker_entrypoint.sh"]
+ENTRYPOINT ["tini", "--", "/app/docker_entrypoint.sh"]

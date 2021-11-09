@@ -1,9 +1,9 @@
 #!/bin/bash
 
-_term() {
-  echo "caught SIGTERM signal!"
-  kill -TERM "$photoview_child" 2>/dev/null
-}
+# _term() {
+#   echo "caught SIGTERM signal!"
+#   kill -TERM "$photoview_child" 2>/dev/null
+# }
 
 export PHOTOVIEW_MEDIA_CACHE="/media/cache"
 
@@ -62,4 +62,4 @@ if [ -z $USERS ]; then
   done
 fi
 
-wait -n $photoview_child
+wait -n tini $photoview_child
