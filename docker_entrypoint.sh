@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# _term() {
-#   echo "caught SIGTERM signal!"
-#   kill -TERM "$photoview_child" 2>/dev/null
-# }
+_term() {
+  echo "caught SIGTERM signal!"
+  kill -TERM "$photoview_child" 2>/dev/null
+}
 
 export PHOTOVIEW_MEDIA_CACHE="/media/cache"
 
@@ -61,5 +61,7 @@ if [ -z "$USERS" ]; then
     sqlite3 $PHOTOVIEW_SQLITE_PATH "begin; $USER_INSERT $ALBUM_INSERT $JOIN_INSERT $INFO_UPDATE commit;"
   done
 fi
+
+trap _term SIGTERM
 
 wait -n $photoview_child
