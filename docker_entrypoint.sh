@@ -20,7 +20,7 @@ photoview_child=$!
 
 export USERS=$(sqlite3 $PHOTOVIEW_SQLITE_PATH 'select * from users;')
 
-if [ -z $USERS ]; then
+if [ -z "$USERS" ]; then
   echo Seeding initial user
   export PASS=$(cat /dev/urandom | base64 | head -c 16)
   mkdir -p /media/start9
@@ -62,4 +62,4 @@ if [ -z $USERS ]; then
   done
 fi
 
-wait -n tini $photoview_child
+wait -n $photoview_child
