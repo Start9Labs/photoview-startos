@@ -30,21 +30,25 @@ main:
   io-format: yaml
 health-checks:
   interface: 
+    name: Web Interface
+    description: Ensures the network interface is accessible via HTTP.
     type: docker
     image: main
     entrypoint: sh
-    args: ["-c", "curl photoview.embassy:80 || exit 1"]
+    args: ["-c", "curl -s --no-progress-meter photoview.embassy:80 || exit 1"]
     io-format: yaml
-    critical: false
+    severity: warning
     inject: true
   database: 
+    name: Database
+    description: Uses a graphQL query to ensure the backend is reachable and responsive. 
     type: docker
     image: main
     entrypoint: sh
-    args: ["-c", "curl 'photoview.embassy:80/api/graphql' -X POST -H 'Content-Type: application/json' --data-raw '{\"operationName\":\"CheckInitialSetup\",\"variables\":{},\"query\":\"query CheckInitialSetup { siteInfo { initialSetup }}\"}'"]
+    args: ["-c", "curl --no-progress-meter 'photoview.embassy:80/api/graphql' -X POST -H 'Content-Type: application/json' --data-raw '{\"operationName\":\"CheckInitialSetup\",\"variables\":{},\"query\":\"query CheckInitialSetup { siteInfo { initialSetup }}\"}'"]
     io-format: yaml
     inject: true
-    critical: false
+    severity: warning
 config: ~
 properties:
   type: docker
