@@ -37,7 +37,6 @@ health-checks:
     entrypoint: sh
     args: ["-c", "curl -s --no-progress-meter photoview.embassy:80 || exit 1"]
     io-format: yaml
-    severity: warning
     inject: true
   database: 
     name: Database
@@ -48,7 +47,6 @@ health-checks:
     args: ["-c", "curl --no-progress-meter 'photoview.embassy:80/api/graphql' -X POST -H 'Content-Type: application/json' --data-raw '{\"operationName\":\"CheckInitialSetup\",\"variables\":{},\"query\":\"query CheckInitialSetup { siteInfo { initialSetup }}\"}'"]
     io-format: yaml
     inject: true
-    severity: warning
 config: ~
 properties:
   type: docker
