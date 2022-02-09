@@ -29,7 +29,7 @@ main:
     filebrowser: /mnt/filebrowser
   io-format: yaml
 health-checks:
-  interface: 
+  interface:
     name: Web Interface
     description: Ensures the network interface is accessible via HTTP.
     type: docker
@@ -38,9 +38,9 @@ health-checks:
     args: ["-c", "curl -s --no-progress-meter photoview.embassy:80 || exit 1"]
     io-format: yaml
     inject: true
-  database: 
+  database:
     name: Database
-    description: Uses a graphQL query to ensure the backend is reachable and responsive. 
+    description: Uses a graphQL query to ensure the backend is reachable and responsive.
     type: docker
     image: main
     entrypoint: sh
@@ -85,9 +85,9 @@ interfaces:
       port-mapping:
         80: "80"
     lan-config:
-      80:
+      443:
         ssl: true
-        mapping: 443
+        internal: 80
     ui: true
     protocols:
       - tcp
