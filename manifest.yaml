@@ -45,7 +45,7 @@ health-checks:
     image: main
     entrypoint: sh
     args: ["-c", "curl --no-progress-meter 'photoview.embassy:80/api/graphql' -X POST -H 'Content-Type: application/json' --data-raw '{\"operationName\":\"CheckInitialSetup\",\"variables\":{},\"query\":\"query CheckInitialSetup { siteInfo { initialSetup }}\"}'"]
-    io-format: yaml
+    io-format: json
     inject: true
 config: ~
 properties:
