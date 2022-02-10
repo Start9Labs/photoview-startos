@@ -81,5 +81,5 @@ SSH into an Embassy device.
 Run the following command to determine successful install:
 
 ```
-sudo appmgr install photoview.s9pk
+embassy-cli package install photoview.s9pk
 ```
