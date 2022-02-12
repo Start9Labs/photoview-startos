@@ -1,33 +1,139 @@
-compat: v0
 id: photoview
-version: 2.3.0
 title: Photoview
+version: 2.3.9
+release-notes: "Upgrade to EmbassyOS v0.3.0 and Photoview v0.2.9 https://github.com/photoview/photoview/releases/tag/v2.3.9"
+license: gnu
+wrapper-repo: "https://github.com/Start9Labs/embassyos-photoview-wrapper"
+upstream-repo: "https://github.com/photoview/photoview/tree/master"
+support-site: "https://github.com/photoview/photoview/issues"
+marketing-site: "https://photoview.github.io/"
+donation-url: "https://github.com/sponsors/viktorstrate"
+build: ["make"]
+min-os-version: "0.3.0"
 description:
-  short: "An easy way to organize and share your personal photos."
-  long: "Photoview is a simple photo gallery, providing an easy way to organize, navigate, and share photos."
-release-notes: https://github.com/photoview/photoview/releases/tag/v2.3.0
-ports:
-  - internal: 80
-    tor: 80
-image:
-  type: tar
-mount: /media
-has-instructions: true
-os-version-required: ">=0.2.12"
-os-version-recommended: ">=0.2.12"
-assets: []
-hidden-service-version: v3
+  short: An easy way to organize and share your personal photos
+  long: |
+    Photoview is a simple photo gallery, providing an easy way to organize, navigate, and share photos.
+assets:
+  license: LICENSE
+  icon: icon.png
+  instructions: instructions.md
+  docker-images: image.tar
+main:
+  type: docker
+  image: main
+  entrypoint: "/app/docker_entrypoint.sh"
+  args: []
+  mounts:
+    main: /media
+    filebrowser: /mnt/filebrowser
+  io-format: yaml
+health-checks:
+  interface:
+    name: Web Interface
+    description: Ensures the network interface is accessible via HTTP.
+    type: docker
+    image: main
+    entrypoint: sh
+    args: ["-c", "curl -s --no-progress-meter photoview.embassy:80 || exit 1"]
+    io-format: json
+    inject: true
+  database:
+    name: Database
+    description: Uses a graphQL query to ensure the backend is reachable and responsive.
+    type: docker
+    image: main
+    entrypoint: sh
+    args: ["-c", "curl --no-progress-meter 'photoview.embassy:80/api/graphql' -X POST -H 'Content-Type: application/json' --data-raw '{\"operationName\":\"CheckInitialSetup\",\"variables\":{},\"query\":\"query CheckInitialSetup { siteInfo { initialSetup }}\"}'"]
+    io-format: json
+    inject: true
+config: ~
+properties:
+  type: docker
+  image: compat
+  system: true
+  entrypoint: compat
+  args:
+    - properties
+    - /media
+  mounts:
+    main: /media
+    compat: /mnt/assets
+  io-format: yaml
 dependencies:
   filebrowser:
-    version: ">=2.14.1"
+    version: "^2.14.1.1"
     description: Used to get media from File Browser
-    mount-public: true
+    critical: true
+    requirement:
+      type: required
+volumes:
+  main:
+    type: data
+  filebrowser:
+    type: pointer
+    package-id: filebrowser
+    volume-id: main
+    path: /data
+    readonly: false
+alerts: {}
+interfaces:
+  main:
+    name: Web Interface
+    description: Main user interface for interacting with Photoview in a web browser.
+    tor-config:
+      port-mapping:
+        80: "80"
+    lan-config:
+      443:
+        ssl: true
+        internal: 80
+    ui: true
+    protocols:
+      - tcp
+      - http
+backup:
+  create:
+    type: docker
+    image: compat
+    system: true
+    entrypoint: compat
+    args:
+      - duplicity
+      - create
+      - /mnt/backup
+      - /media
+    mounts:
+      BACKUP: /mnt/backup
+      main: /media
+    io-format: yaml
+  restore:
+    type: docker
+    image: compat
+    system: true
+    entrypoint: compat
+    args:
+      - duplicity
+      - restore
+      - /mnt/backup
+      - /media
+    mounts:
+      BACKUP: /mnt/backup
+      main: /media
+    io-format: yaml
 actions:
-  - id: reset-admin
+  reset-admin:
     name: Reset Root User
     description: Resets your root user (the first user) to username "admin" and a random password; restores any lost admin privileges.
     warning: This will invalidate existing sessions and password managers if you have them set up.
     allowed-statuses:
-      - STOPPED
-    command:
-      - reset-admin.sh
+      - stopped
+    implementation:
+      type: docker
+      image: main
+      system: false
+      entrypoint: reset-admin.sh
+      args: []
+      mounts:
+        main: /media
+      io-format: json

@@ -1,8 +1,8 @@
-FROM viktorstrate/photoview:2.3.0
+FROM viktorstrate/photoview:2.3.9
 
 # Install mariadb mysql database server
 RUN apt-get update \
-  && apt-get install -y mariadb-server wget sqlite3 apache2-utils \
+  && apt-get install -y mariadb-server wget sqlite3 apache2-utils curl \
   # Cleanup
   && apt-get autoremove -y \
   && apt-get clean \
