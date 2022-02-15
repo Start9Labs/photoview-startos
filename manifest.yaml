@@ -58,7 +58,6 @@ properties:
     - /media
   mounts:
     main: /media
-    compat: /mnt/assets
   io-format: yaml
 dependencies:
   filebrowser:
