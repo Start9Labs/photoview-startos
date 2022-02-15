@@ -15,5 +15,7 @@ ADD ./reset-admin.sh /usr/local/bin/reset-admin.sh
 RUN chmod a+x /usr/local/bin/reset-admin.sh
 ADD ./docker_entrypoint.sh /app/docker_entrypoint.sh
 RUN chmod a+x /app/docker_entrypoint.sh
+COPY ./health-check.sh /usr/local/bin/health-check.sh
+RUN chmod a+x /usr/local/bin/health-check.sh
 
 ENTRYPOINT ["/app/docker_entrypoint.sh"]

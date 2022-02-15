@@ -34,8 +34,8 @@ health-checks:
     description: Ensures the network interface is accessible via HTTP.
     type: docker
     image: main
-    entrypoint: sh
-    args: ["-c", "curl -s --no-progress-meter photoview.embassy:80 || exit 1"]
+    entrypoint: health-check.sh
+    args: ["web"]
     io-format: json
     inject: true
   database:
@@ -43,8 +43,8 @@ health-checks:
     description: Uses a graphQL query to ensure the backend is reachable and responsive.
     type: docker
     image: main
-    entrypoint: sh
-    args: ["-c", "curl --no-progress-meter 'photoview.embassy:80/api/graphql' -X POST -H 'Content-Type: application/json' --data-raw '{\"operationName\":\"CheckInitialSetup\",\"variables\":{},\"query\":\"query CheckInitialSetup { siteInfo { initialSetup }}\"}'"]
+    entrypoint: health-check.sh
+    args: ["api"]
     io-format: json
     inject: true
 config: ~
