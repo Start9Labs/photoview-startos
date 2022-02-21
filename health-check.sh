@@ -5,9 +5,9 @@ check_api(){
     if (($DURATION <= 5000 )); then 
         exit 60
     else
-        curl --silent --fail 'photoview.embassy:80/api/graphql' -X POST -H 'Content-Type: application/json' --data-raw '{"operationName":"CheckInitialSetup","variables":{},"query":"query CheckInitialSetup { siteInfo { initialSetup }}"}'
-        RES=$?
-        if test "$RES" != 0; then
+        res=$(curl --silent --fail 'photoview.embassy:80/api/graphql' -X POST -H 'Content-Type: application/json' --data-raw '{"operationName":"CheckInitialSetup","variables":{},"query":"query CheckInitialSetup { siteInfo { initialSetup }}"}')
+        exit_code=$?
+        if test "$exit_code" != 0; then
             echo "API unreachable" >&2
             exit 1
         fi
@@ -20,8 +20,8 @@ check_web(){
         exit 60
     else
         curl --silent --fail photoview.embassy &>/dev/null
-        RES=$?
-        if test "$RES" != 0; then
+        exit_code=$?
+        if test "$exit_code" != 0; then
             echo "Web interface is unreachable" >&2
             exit 1
         fi
