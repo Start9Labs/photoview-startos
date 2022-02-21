@@ -15,5 +15,5 @@ install: photoview.s9pk
 photoview.s9pk: manifest.yaml image.tar instructions.md LICENSE icon.png
 	embassy-sdk pack
 
-image.tar: Dockerfile docker_entrypoint.sh
+image.tar: Dockerfile docker_entrypoint.sh health-check.sh
 	DOCKER_CLI_EXPERIMENTAL=enabled docker buildx build --tag start9/photoview/main:${EMVER} --platform=linux/arm64/v8 -o type=docker,dest=image.tar .

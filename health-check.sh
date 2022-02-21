@@ -19,7 +19,7 @@ check_web(){
     if (($DURATION <= 15000 )); then 
         exit 60
     else
-        curl --silent --fail photoview.embassy:80
+        curl --silent --fail photoview.embassy &>/dev/null
         RES=$?
         if test "$RES" != 0; then
             echo "Web interface is unreachable" >&2
