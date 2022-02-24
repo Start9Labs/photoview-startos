@@ -51,14 +51,16 @@ if [ -z "$USERS" ]; then
   JOIN_INSERT="insert into user_albums (album_id, user_id) values (1, 1);"
   INFO_UPDATE="update site_info set initial_setup = false;"
 
-  test -f $PHOTOVIEW_SQLITE_PATH
-  while [ $? -ne 0 ]; do
+  while ! [ -f $PHOTOVIEW_SQLITE_PATH ]; do
     echo "Waiting for database..."
+    sleep 1
   done
 
-  sqlite3 $PHOTOVIEW_SQLITE_PATH "begin; $USER_INSERT $ALBUM_INSERT $JOIN_INSERT $INFO_UPDATE commit;"
-  while [ $? -ne 0 ]; do
-    sqlite3 $PHOTOVIEW_SQLITE_PATH "begin; $USER_INSERT $ALBUM_INSERT $JOIN_INSERT $INFO_UPDATE commit;"
+  echo "begin; $USER_INSERT $ALBUM_INSERT $JOIN_INSERT $INFO_UPDATE commit;"
+  while ! sqlite3 $PHOTOVIEW_SQLITE_PATH "begin; $USER_INSERT $ALBUM_INSERT $JOIN_INSERT $INFO_UPDATE commit;"
+  do
+    echo "Retrying user seed..."
+    sleep 1
   done
 fi
 
