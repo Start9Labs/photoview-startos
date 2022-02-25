@@ -16,6 +16,7 @@ RUN chmod a+x /usr/local/bin/reset-admin.sh
 ADD ./docker_entrypoint.sh /app/docker_entrypoint.sh
 RUN chmod a+x /app/docker_entrypoint.sh
 COPY ./health-check.sh /usr/local/bin/health-check.sh
+COPY ./migration-from-lt-2-3-9.sh /usr/local/bin/migration-from-lt-2-3-9.sh
 RUN chmod a+x /usr/local/bin/health-check.sh
 
 ENTRYPOINT ["/app/docker_entrypoint.sh"]

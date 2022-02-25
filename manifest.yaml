@@ -28,6 +28,16 @@ main:
     main: /media
     filebrowser: /mnt/filebrowser
   io-format: yaml
+migrations:
+  from:
+    "<2.3.9":
+      type: docker
+      image: main
+      entrypoint: migration-from-lt-2-3-9.sh
+      args: []
+      io-format: json
+      inject: true
+  to: {}
 health-checks:
   interface:
     name: Web Interface
