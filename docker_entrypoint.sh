@@ -42,6 +42,12 @@ if [ -z "$USERS" ]; then
   echo '    masked: true' >> /media/start9/stats.yaml
   echo '    qr: false' >> /media/start9/stats.yaml
 
+  if ! test -d /mnt/filebrowser
+  then
+    echo "Filebrowser mountpoint does not exist"
+    exit 0
+  fi
+
   echo INSERTING INITIAL USER
   PASS_HASH=$(htpasswd -bnBC 12 "" $PASS | tr -d ':\n' | sed 's/$2y/$2a/')
   PATH_MD5=$(echo -n /mnt/filebrowser | md5sum | head -c 32)
