@@ -1,12 +1,12 @@
 FROM viktorstrate/photoview:2.3.9
 
 # Install mariadb mysql database server
-RUN apt-get update
-RUN apt-get install -y mariadb-server wget sqlite3 apache2-utils curl
-# Cleanup
-RUN apt-get autoremove -y
-RUN apt-get clean
-RUN rm -rf /var/lib/apt/lists/*
+RUN apt-get update \
+  && apt-get install -y mariadb-server wget sqlite3 apache2-utils curl \
+  # Cleanup
+  && apt-get autoremove -y \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
 
 RUN wget https://github.com/mikefarah/yq/releases/download/v4.6.3/yq_linux_arm.tar.gz -O - |\
   tar xz && mv yq_linux_arm /usr/bin/yq
