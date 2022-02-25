@@ -40,8 +40,8 @@ migrations:
   to: {}
 health-checks:
   interface:
-    name: Web Interface
-    description: Ensures the network interface is accessible via HTTP.
+    name: Web UI
+    success-message: The Web UI is ready to visit
     type: docker
     image: main
     entrypoint: health-check.sh
@@ -50,7 +50,7 @@ health-checks:
     inject: true
   database:
     name: Database
-    description: Uses a graphQL query to ensure the backend is reachable and responsive.
+    success-message: The backend is reachable via graphQL
     type: docker
     image: main
     entrypoint: health-check.sh
