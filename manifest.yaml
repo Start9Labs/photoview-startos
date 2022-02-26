@@ -9,7 +9,6 @@ support-site: "https://github.com/photoview/photoview/issues"
 marketing-site: "https://photoview.github.io/"
 donation-url: "https://github.com/sponsors/viktorstrate"
 build: ["make"]
-min-os-version: "0.3.0"
 description:
   short: An easy way to organize and share your personal photos
   long: |
@@ -73,7 +72,6 @@ dependencies:
   filebrowser:
     version: "^2.14.1.1"
     description: Used to get media from File Browser
-    critical: true
     requirement:
       type: required
 volumes:
