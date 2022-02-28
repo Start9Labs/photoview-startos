@@ -36,6 +36,8 @@ migrations:
       args: []
       io-format: json
       inject: true
+      mounts:
+        main: /media
   to: {}
 health-checks:
   interface:
