@@ -1,8 +1,9 @@
 id: photoview
 title: Photoview
-version: 2.3.9.1
+version: 2.3.12
 release-notes: |
-  * Switch to using new EOS APIs for faster configuration and properties
+  * Switch to using new EOS APIs for faster configuration and properties |
+  * Dark Mode and Improvements
 license: gnu
 wrapper-repo: "https://github.com/Start9Labs/embassyos-photoview-wrapper"
 upstream-repo: "https://github.com/photoview/photoview/tree/master"
