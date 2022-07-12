@@ -1,7 +1,8 @@
 id: photoview
 title: Photoview
-version: 2.3.9
-release-notes: "Upgrade to EmbassyOS v0.3.0 and Photoview v0.2.9 https://github.com/photoview/photoview/releases/tag/v2.3.9"
+version: 2.3.9.1
+release-notes: |
+  * Switch to using new EOS APIs for faster configuration and properties
 license: gnu
 wrapper-repo: "https://github.com/Start9Labs/embassyos-photoview-wrapper"
 upstream-repo: "https://github.com/photoview/photoview/tree/master"
@@ -26,7 +27,6 @@ main:
   mounts:
     main: /media
     filebrowser: /mnt/filebrowser
-  io-format: yaml
 migrations:
   from:
     "<2.3.9":
@@ -60,16 +60,7 @@ health-checks:
     inject: true
 config: ~
 properties:
-  type: docker
-  image: compat
-  system: true
-  entrypoint: compat
-  args:
-    - properties
-    - /media
-  mounts:
-    main: /media
-  io-format: yaml
+  type: script
 dependencies:
   filebrowser:
     version: "^2.14.1.1"
