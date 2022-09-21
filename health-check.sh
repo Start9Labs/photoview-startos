@@ -2,7 +2,7 @@
 
 check_api(){
     DURATION=$(</dev/stdin)
-    if (($DURATION <= 5000 )); then 
+    if (($DURATION <= 15000 )); then 
         exit 60
     else
         res=$(curl --silent --fail 'photoview.embassy:80/api/graphql' -X POST -H 'Content-Type: application/json' --data-raw '{"operationName":"CheckInitialSetup","variables":{},"query":"query CheckInitialSetup { siteInfo { initialSetup }}"}')

@@ -1,30 +1,45 @@
 #!/bin/bash
 
+set -e
+
 _term() {
   echo "caught SIGTERM signal!"
   kill -TERM "$photoview_child" 2>/dev/null
 }
 
-export PHOTOVIEW_MEDIA_CACHE="/media/cache"
+# set permissions for postgres folders
+chown -R postgres:postgres $POSTGRES_DATADIR
+chown -R postgres:postgres $POSTGRES_CONFIG
+chmod -R 700 $POSTGRES_DATADIR
+chmod -R 700 $POSTGRES_CONFIG
+mkdir -p /media/start9
+service postgresql start
 
-export PHOTOVIEW_LISTEN_IP=0.0.0.0
-export PHOTOVIEW_LISTEN_PORT=80
+echo 'checking for existing admin user...'
+export USERS=$(sqlite3 $PHOTOVIEW_SQLITE_PATH 'select * from users;') 
+export NEW_USERS=$(su - postgres -c 'psql -d '$POSTGRES_DB' -c "select * from users"')
+sleep 1
 
-export PHOTOVIEW_DATABASE_DRIVER="sqlite"
-export PHOTOVIEW_SQLITE_PATH="/media/photoview.db"
+if [ -f /media/start9/config.yaml ] && ! [ -z "$NEW_USERS" ]; then
+  echo 'loading existing admin credentials...'
+  export POSTGRES_PASSWORD=$(yq e '.password' /media/start9/config.yaml)
+fi
 
-# start photoview executable
-echo 'starting photoview server...'
-/app/photoview &
-photoview_child=$!
+if ! [ -z "$USERS" ] && [ -z "$NEW_USERS" ]; then
+  echo 'existing user from previous version exists'
+  export POSTGRES_PASSWORD=$(cat /dev/urandom | tr -dc '[:alnum:]' | head -c 16)
+fi
 
-export USERS=$(sqlite3 $PHOTOVIEW_SQLITE_PATH 'select * from users;')
+if [ -z "$USERS" ] && [ -z "$NEW_USERS" ]; then 
+  echo 'No admin users found.'
+  echo 'Seeding initial user...'
+  export POSTGRES_PASSWORD=$(cat /dev/urandom | tr -dc '[:alnum:]' | head -c 16)
+fi
 
-if [ -z "$USERS" ]; then
-  echo Seeding initial user
-  export PASS=$(cat /dev/urandom | base64 | head -c 16)
-  mkdir -p /media/start9
-
+if [ -z "$NEW_USERS" ]; then
+  rm -f /media/start9/config.yaml && touch /media/start9/config.yaml 
+  echo "password: $POSTGRES_PASSWORD" > /media/start9/config.yaml
+  echo 'Configuring properties page...'
   echo 'version: 2' > /media/start9/stats.yaml
   echo 'data:' >> /media/start9/stats.yaml
   echo '  Default Username:' >> /media/start9/stats.yaml
@@ -36,38 +51,71 @@ if [ -z "$USERS" ]; then
   echo '    masked: false' >> /media/start9/stats.yaml
   echo '  Default Password:' >> /media/start9/stats.yaml
   echo '    type: string' >> /media/start9/stats.yaml
-  echo '    value: "'"$PASS"'"' >> /media/start9/stats.yaml
+  echo '    value: "'"$POSTGRES_PASSWORD"'"' >> /media/start9/stats.yaml
   echo '    description: This is your randomly-generated, default password. While it is not necessary, you may change it inside your Photoview application. That change, however, will not be reflected here.' >> /media/start9/stats.yaml
   echo '    copyable: true' >> /media/start9/stats.yaml
   echo '    masked: true' >> /media/start9/stats.yaml
   echo '    qr: false' >> /media/start9/stats.yaml
+  echo 'Properties page ready.'
 
-  if ! test -d /mnt/filebrowser
-  then
-    echo "Filebrowser mountpoint does not exist"
+  if ! test -d /mnt/filebrowser; then
+    echo "Filebrowser mountpoint does not exist. Please make sure you have Filebrowser running."
     exit 0
   fi
 
-  echo INSERTING INITIAL USER
-  PASS_HASH=$(htpasswd -bnBC 12 "" $PASS | tr -d ':\n' | sed 's/$2y/$2a/')
-  PATH_MD5=$(echo -n /mnt/filebrowser | md5sum | head -c 32)
+  echo 'applying database permissions...'
+  su - postgres -c "pg_createcluster 14 photoview"
+  service postgresql start
+  su - postgres -c "createuser $POSTGRES_USER"
+  su - postgres -c "createdb $POSTGRES_DB"
+  su - postgres -c 'psql -c "ALTER USER '$POSTGRES_USER' WITH ENCRYPTED PASSWORD '"'"$POSTGRES_PASSWORD"'"';"'
+  su - postgres -c 'psql -c "grant all privileges on database '$POSTGRES_DB' to '$POSTGRES_USER';"'
+  su - postgres -c 'echo "localhost:5432:'$POSTGRES_USER':'$POSTGRES_PASSWORD'" >> .pgpass'
+  su - postgres -c "chmod -R 0600 .pgpass"
+  chmod -R 0600 /var/lib/postgresql/.pgpass
+  echo 'database permissions setup complete.'
+fi
 
-  USER_INSERT="insert into users (id, created_at, updated_at, username, password, admin) values (1, datetime('now'), datetime('now'), 'admin', '$PASS_HASH', true);"
-  ALBUM_INSERT="insert into albums (id, created_at, updated_at, title, parent_album_id, path, path_hash) values (1, datetime('now'), datetime('now'), 'filebrowser', NULL, '/mnt/filebrowser', '$PATH_MD5');"
+# # Uncomment these three lines if you wanna debug from the command line
+# while true; do  sleep 100; echo 'debugging'; done
+# # End of debugging code
+
+# start photoview executable
+echo 'starting photoview server...'
+sed -i "s/_photoview_password_/"$POSTGRES_PASSWORD"/" /app/.env 
+/app/photoview &
+photoview_child=$!
+
+# if ! [ -z "$USERS" ] && [ -z "$NEW_USERS" ]; then
+#   # migrate data from sqlite to postgresql
+#   sleep 30
+#   echo 'Migrating users and albums from sqlite to postgresql'
+#   sqlite3 /media/photoview.db .dump > /media/photoview.sql
+#   sed -i "s/\`//g" /media/photoview.sql
+#   sed -i "s/CREATE.*//g" /media/photoview.sql
+#   sed -i '/^$/d' /media/photoview.sql
+#   sed -i "s/(1/(10/" /media/photoview.sql
+#   touch /media/photoview_trimmed.sql
+#   tail -n+3 /media/photoview.sql >> /media/photoview_trimmed.sql
+#   su - postgres -c "psql -d photoview < /media/photoview_trimmed.sql"
+#   echo 'updating admin password...'
+#   export OLD_PASSWORD=$(su - postgres -c 'psql -d '$POSTGRES_DB' -c "select password from users limit 1"')
+#   sed -i "s/$POSTGRES_PASSWORD/$OLD_PASSWORD/" /media/start9/stats.yaml 
+#   export POSTGRES_PASSWORD=$OLD_PASSWORD
+# fi
+
+if [ -z "$NEW_USERS" ]; then 
+  sleep 10
+  echo "Inserting admin user into database..."
+  PASS_HASH=$(htpasswd -bnBC 12 "" $POSTGRES_PASSWORD | tr -d ':\n' | sed 's/$2y/$2a/')
+  PATH_MD5=$(echo -n /mnt/filebrowser | md5sum | head -c 32)
+  USER_INSERT="insert into users (id, created_at, updated_at, username, password, admin) values (1, current_timestamp, current_timestamp, 'admin', '$PASS_HASH', true);"
+  ALBUM_INSERT="insert into albums (id, created_at, updated_at, title, parent_album_id, path, path_hash) values (1, current_timestamp, current_timestamp, 'filebrowser', NULL, '/mnt/filebrowser', '$PATH_MD5');"
   JOIN_INSERT="insert into user_albums (album_id, user_id) values (1, 1);"
   INFO_UPDATE="update site_info set initial_setup = false;"
-
-  while ! [ -f $PHOTOVIEW_SQLITE_PATH ]; do
-    echo "Waiting for database..."
-    sleep 1
-  done
-
   echo "begin; $USER_INSERT $ALBUM_INSERT $JOIN_INSERT $INFO_UPDATE commit;"
-  while ! sqlite3 $PHOTOVIEW_SQLITE_PATH "begin; $USER_INSERT $ALBUM_INSERT $JOIN_INSERT $INFO_UPDATE commit;"
-  do
-    echo "Retrying user seed..."
-    sleep 1
-  done
+  printf "begin; $USER_INSERT $ALBUM_INSERT $JOIN_INSERT $INFO_UPDATE commit;" | su - postgres -c "psql -d photoview"
+  echo 'Photoview setup complete.'
 fi
 
 trap _term SIGTERM

@@ -7,9 +7,9 @@ This project wraps [Photoview](https://github.com/photoview/photoview) for Embas
 - [docker](https://docs.docker.com/get-docker)
 - [docker-buildx](https://docs.docker.com/buildx/working-with-buildx/)
 - [yq](https://mikefarah.gitbook.io/yq)
-- [toml](https://crates.io/crates/toml-cli)
-- [appmgr](https://github.com/Start9Labs/embassy-os/tree/master/appmgr)
+- [deno](https://deno.land/)
 - [make](https://www.gnu.org/software/make/)
+- [embassy-sdk](https://github.com/Start9Labs/embassy-os/tree/master/backend)
 
 ## Build enviroment
 Prepare your EmbassyOS build enviroment. In this example we are using Ubuntu 20.04.
@@ -33,42 +33,41 @@ docker run --privileged --rm linuxkit/binfmt:v0.8
 ```
 sudo snap install yq
 ```
-5. Install essentials build packages
+5. Install deno
+```
+sudo snap install deno
+```
+6. Install essentials build packages
 ```
 sudo apt-get install -y build-essential openssl libssl-dev libc6-dev clang libclang-dev ca-certificates
 ```
-6. Install Rust
+7. Install Rust
 ```
 curl https://sh.rustup.rs -sSf | sh
 # Choose nr 1 (default install)
 source $HOME/.cargo/env
 ```
-7. Install toml
+8. Build and install embassy-sdk
 ```
-cargo install toml-cli
+cd ~/ && git clone --recursive https://github.com/Start9Labs/embassy-os.git
+cd embassy-os/backend/
+./install-sdk.sh
+embassy-sdk init
 ```
-8. Build and install appmgr
-```
-cd ~/ && git clone https://github.com/Start9Labs/embassy-os.git
-cd embassy-os/appmgr/
-cargo install --path=. --features=portable --no-default-features && cd ~/
-```
-Now you are ready to build your first EmbassyOS service
+Now you are ready to build your **Photoview** service
 
 ## Cloning
 
-Clone the project locally. Note the submodule link to the original project(s). 
+Clone the project locally. 
 
 ```
-git clone git@github.com:Start9Labs/embassyos-photoview-wrapper.git
-cd embassyos-photoview-wrapper
-git submodule update --init
-
+git clone https://github.com/Start9Labs/Photoview-wrapper.git
+cd Photoview-wrapper
 ```
 
 ## Building
 
-To build the project, run the following commands:
+To build the **Photoview** service, run the following command:
 
 ```
 make
@@ -76,10 +75,17 @@ make
 
 ## Installing (on Embassy)
 
-SSH into an Embassy device.
-`scp` the `.s9pk` to any directory from your local machine.
-Run the following command to determine successful install:
+Run the following commands to determine successful install:
+> :information_source: Change embassy-q1w2e3r4.local to your Embassy address
 
 ```
-embassy-cli package install photoview.s9pk
+embassy-cli auth login
+#Enter your embassy password
+embassy-cli --host https://embassy-q1w2e3r4.local package install Photoview.s9pk
 ```
+**Tip:** You can also install the Photoview.s9pk using **Sideload Service** under the **Embassy > SETTINGS** section.
+## Verify Install
+
+Go to your Embassy Services page, select **Photoview**, configure and start the service.
+
+**Done!** 

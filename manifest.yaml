@@ -1,7 +1,9 @@
 id: photoview
 title: Photoview
-version: 2.3.9
-release-notes: "Upgrade to EmbassyOS v0.3.0 and Photoview v0.2.9 https://github.com/photoview/photoview/releases/tag/v2.3.9"
+version: 2.3.13
+release-notes: | 
+  * Database Migration to PostgreSQL
+  * Upgrade to EmbassyOS v0.3.1.1 and Photoview v0.2.13
 license: gnu
 wrapper-repo: "https://github.com/Start9Labs/embassyos-photoview-wrapper"
 upstream-repo: "https://github.com/photoview/photoview/tree/master"
@@ -21,11 +23,13 @@ assets:
 main:
   type: docker
   image: main
-  entrypoint: "/app/docker_entrypoint.sh"
+  entrypoint: "docker_entrypoint.sh"
   args: []
   mounts:
     main: /media
     filebrowser: /mnt/filebrowser
+    db: /var/lib/postgresql/14
+    dbconfig: /etc/postgresql/14
   io-format: yaml
 migrations:
   from:
@@ -35,8 +39,13 @@ migrations:
       entrypoint: migration-from-lt-2-3-9.sh
       args: []
       io-format: json
-      inject: true
-  to: {}
+      inject: false
+      mounts:
+        main: /media
+  to:
+    "*":
+      type: script
+      args: ["to"]
 health-checks:
   interface:
     name: Web UI
@@ -58,16 +67,7 @@ health-checks:
     inject: true
 config: ~
 properties:
-  type: docker
-  image: compat
-  system: true
-  entrypoint: compat
-  args:
-    - properties
-    - /media
-  mounts:
-    main: /media
-  io-format: yaml
+  type: script
 dependencies:
   filebrowser:
     version: "^2.14.1.1"
@@ -83,6 +83,10 @@ volumes:
     volume-id: main
     path: /data
     readonly: false
+  db:
+    type: data
+  dbconfig:
+    type: data
 alerts: {}
 interfaces:
   main:
