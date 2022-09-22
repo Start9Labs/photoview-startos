@@ -86,24 +86,6 @@ sed -i "s/_photoview_password_/"$POSTGRES_PASSWORD"/" /app/.env
 /app/photoview &
 photoview_child=$!
 
-# if ! [ -z "$USERS" ] && [ -z "$NEW_USERS" ]; then
-#   # migrate data from sqlite to postgresql
-#   sleep 30
-#   echo 'Migrating users and albums from sqlite to postgresql'
-#   sqlite3 /media/photoview.db .dump > /media/photoview.sql
-#   sed -i "s/\`//g" /media/photoview.sql
-#   sed -i "s/CREATE.*//g" /media/photoview.sql
-#   sed -i '/^$/d' /media/photoview.sql
-#   sed -i "s/(1/(10/" /media/photoview.sql
-#   touch /media/photoview_trimmed.sql
-#   tail -n+3 /media/photoview.sql >> /media/photoview_trimmed.sql
-#   su - postgres -c "psql -d photoview < /media/photoview_trimmed.sql"
-#   echo 'updating admin password...'
-#   export OLD_PASSWORD=$(su - postgres -c 'psql -d '$POSTGRES_DB' -c "select password from users limit 1"')
-#   sed -i "s/$POSTGRES_PASSWORD/$OLD_PASSWORD/" /media/start9/stats.yaml 
-#   export POSTGRES_PASSWORD=$OLD_PASSWORD
-# fi
-
 if [ -z "$NEW_USERS" ]; then 
   sleep 10
   echo "Inserting admin user into database..."
