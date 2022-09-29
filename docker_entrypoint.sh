@@ -16,9 +16,9 @@ mkdir -p /media/start9
 service postgresql start
 
 echo 'checking for existing admin user...'
-export USERS=$(sqlite3 $PHOTOVIEW_SQLITE_PATH 'select * from users;') 
-export NEW_USERS=$(su - postgres -c 'psql -d '$POSTGRES_DB' -c "select * from users"')
-sleep 1
+  export USERS=$(sqlite3 $PHOTOVIEW_SQLITE_PATH 'select * from users;') 
+  export NEW_USERS=$(su - postgres -c 'psql -d '$POSTGRES_DB' -c "select * from users"')
+  sleep 1
 
 if [ -f /media/start9/config.yaml ] && ! [ -z "$NEW_USERS" ]; then
   echo 'loading existing admin credentials...'
@@ -66,6 +66,13 @@ if [ -z "$NEW_USERS" ]; then
   echo 'applying database permissions...'
   su - postgres -c "pg_createcluster 14 photoview"
   service postgresql start
+  sleep 5
+
+  su - postgres -c 'psql -c "UPDATE pg_database SET datistemplate = FALSE WHERE datname = '"'"template1"'"';"'
+  su - postgres -c 'psql -c "DROP DATABASE template1;"'
+  su - postgres -c 'psql -c "CREATE DATABASE template1 WITH TEMPLATE = template0 ENCODING = '"'"UTF8"'"';"'
+  su - postgres -c 'psql -c "UPDATE pg_database SET datistemplate = TRUE WHERE datname = '"'"template1"'"';"'
+  su - postgres -c "psql -d template1 -c 'VACUUM FREEZE;'"
   su - postgres -c "createuser $POSTGRES_USER"
   su - postgres -c "createdb $POSTGRES_DB"
   su - postgres -c 'psql -c "ALTER USER '$POSTGRES_USER' WITH ENCRYPTED PASSWORD '"'"$POSTGRES_PASSWORD"'"';"'
@@ -75,10 +82,6 @@ if [ -z "$NEW_USERS" ]; then
   chmod -R 0600 /var/lib/postgresql/.pgpass
   echo 'database permissions setup complete.'
 fi
-
-# # Uncomment these three lines if you wanna debug from the command line
-# while true; do  sleep 100; echo 'debugging'; done
-# # End of debugging code
 
 # start photoview executable
 echo 'starting photoview server...'
@@ -91,9 +94,9 @@ if [ -z "$NEW_USERS" ]; then
   echo "Inserting admin user into database..."
   PASS_HASH=$(htpasswd -bnBC 12 "" $POSTGRES_PASSWORD | tr -d ':\n' | sed 's/$2y/$2a/')
   PATH_MD5=$(echo -n /mnt/filebrowser | md5sum | head -c 32)
-  USER_INSERT="insert into users (id, created_at, updated_at, username, password, admin) values (1, current_timestamp, current_timestamp, 'admin', '$PASS_HASH', true);"
-  ALBUM_INSERT="insert into albums (id, created_at, updated_at, title, parent_album_id, path, path_hash) values (1, current_timestamp, current_timestamp, 'filebrowser', NULL, '/mnt/filebrowser', '$PATH_MD5');"
-  JOIN_INSERT="insert into user_albums (album_id, user_id) values (1, 1);"
+  USER_INSERT="insert into users (id, created_at, updated_at, username, password, admin) values (21, current_timestamp, current_timestamp, 'admin', '$PASS_HASH', true);"
+  ALBUM_INSERT="insert into albums (id, created_at, updated_at, title, parent_album_id, path, path_hash) values (21, current_timestamp, current_timestamp, 'filebrowser', NULL, '/mnt/filebrowser', '$PATH_MD5');"
+  JOIN_INSERT="insert into user_albums (album_id, user_id) values (21, 21);"
   INFO_UPDATE="update site_info set initial_setup = false;"
   echo "begin; $USER_INSERT $ALBUM_INSERT $JOIN_INSERT $INFO_UPDATE commit;"
   printf "begin; $USER_INSERT $ALBUM_INSERT $JOIN_INSERT $INFO_UPDATE commit;" | su - postgres -c "psql -d photoview"

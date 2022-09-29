@@ -1,9 +1,9 @@
 id: photoview
 title: Photoview
-version: 2.3.13
+version: 2.3.13.2
 release-notes: | 
   * Database Migration to PostgreSQL
-  * Upgrade to EmbassyOS v0.3.1.1 and Photoview v0.2.13
+  * Upgrade Photoview v2.3.13
 license: gnu
 wrapper-repo: "https://github.com/Start9Labs/embassyos-photoview-wrapper"
 upstream-repo: "https://github.com/photoview/photoview/tree/master"
