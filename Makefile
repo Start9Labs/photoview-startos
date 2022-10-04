@@ -1,19 +1,28 @@
-VERSION := $(shell cat ./Dockerfile | head -n 1 | sed -e 's/^.*://')
-EMVER := $(shell yq e ".version" manifest.yaml)
-S9PK_PATH=$(shell find . -name photoview.s9pk -print)
+PKG_ID := $(shell yq e ".id" manifest.yaml)
+PKG_VERSION := $(shell yq e ".version" manifest.yaml)
+TS_FILES := $(shell find ./ -name \*.ts)
 
+# delete the target of a rule if it has changed and its recipe exits with a nonzero exit status
 .DELETE_ON_ERROR:
 
 all: verify
 
-verify:  photoview.s9pk $(S9PK_PATH)
-	embassy-sdk verify s9pk $(S9PK_PATH)
+verify: $(PKG_ID).s9pk
+	embassy-sdk verify s9pk $(PKG_ID).s9pk
 
-install: photoview.s9pk
-	embassy-cli package install photoview.s9pk
+install: all
+	embassy-cli package install $(PKG_ID).s9pk
 
-photoview.s9pk: manifest.yaml image.tar instructions.md LICENSE icon.png
+clean:
+	rm -f image.tar
+	rm -f $(PKG_ID).s9pk
+	rm -f scripts/*.js
+
+scripts/embassy.js: $(TS_FILES)
+	deno bundle scripts/embassy.ts scripts/embassy.js
+
+image.tar: Dockerfile docker_entrypoint.sh health-check.sh example.env
+	docker buildx build --tag start9/$(PKG_ID)/main:$(PKG_VERSION) --platform=linux/arm64 -o type=docker,dest=image.tar .
+
+$(PKG_ID).s9pk: manifest.yaml image.tar instructions.md LICENSE icon.png scripts/embassy.js 
 	embassy-sdk pack
-
-image.tar: Dockerfile docker_entrypoint.sh health-check.sh
-	DOCKER_CLI_EXPERIMENTAL=enabled docker buildx build --tag start9/photoview/main:${EMVER} --platform=linux/arm64/v8 -o type=docker,dest=image.tar .
