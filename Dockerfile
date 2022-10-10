@@ -1,4 +1,4 @@
-FROM viktorstrate/photoview:2.3.13
+FROM --platform=linux/amd64 viktorstrate/photoview:2.3.13
 
 ENV PHOTOVIEW_DATABASE_DRIVER postgres
 ENV POSTGRES_DB photoview
@@ -24,8 +24,8 @@ RUN apt-get update \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
-RUN wget https://github.com/mikefarah/yq/releases/download/v4.6.3/yq_linux_arm.tar.gz -O - |\
-  tar xz && mv yq_linux_arm /usr/bin/yq
+RUN wget https://github.com/mikefarah/yq/releases/download/v4.6.3/yq_linux_amd64.tar.gz -O - |\
+  tar xz && mv yq_linux_amd64 /usr/bin/yq
 
 ADD ./example.env /app/.env
 ADD ./reset-admin.sh /usr/local/bin/reset-admin.sh

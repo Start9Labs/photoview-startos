@@ -22,7 +22,7 @@ scripts/embassy.js: $(TS_FILES)
 	deno bundle scripts/embassy.ts scripts/embassy.js
 
 image.tar: Dockerfile docker_entrypoint.sh health-check.sh example.env
-	docker buildx build --tag start9/$(PKG_ID)/main:$(PKG_VERSION) --platform=linux/arm64 -o type=docker,dest=image.tar .
+	docker buildx build --tag start9/$(PKG_ID)/main:$(PKG_VERSION) --platform=linux/amd64 -o type=docker,dest=image.tar .
 
 $(PKG_ID).s9pk: manifest.yaml image.tar instructions.md LICENSE icon.png scripts/embassy.js 
 	embassy-sdk pack
