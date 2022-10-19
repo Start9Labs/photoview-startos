@@ -10,7 +10,7 @@ all: verify
 verify: $(PKG_ID).s9pk
 	embassy-sdk verify s9pk $(PKG_ID).s9pk
 
-install: all
+install: $(PKG_ID).s9pk
 	embassy-cli package install $(PKG_ID).s9pk
 
 clean:
@@ -22,11 +22,11 @@ clean:
 scripts/embassy.js: $(TS_FILES)
 	deno bundle scripts/embassy.ts scripts/embassy.js
 
-docker-images/x86_64.tar: Dockerfile docker_entrypoint.sh health-check.sh example.env
+docker-images/x86_64.tar: Dockerfile docker_entrypoint.sh example.env
 	mkdir -p docker-images
 	docker buildx build --tag start9/$(PKG_ID)/main:$(PKG_VERSION) --platform=linux/amd64 --build-arg PLATFORM=amd64 -o type=docker,dest=docker-images/x86_64.tar .
 
-docker-images/aarch64.tar: Dockerfile docker_entrypoint.sh health-check.sh example.env
+docker-images/aarch64.tar: Dockerfile docker_entrypoint.sh example.env
 	mkdir -p docker-images
 	docker buildx build --tag start9/$(PKG_ID)/main:$(PKG_VERSION) --platform=linux/arm64 --build-arg PLATFORM=arm64 -o type=docker,dest=docker-images/aarch64.tar .
 

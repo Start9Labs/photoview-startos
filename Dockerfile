@@ -32,6 +32,5 @@ RUN wget https://github.com/mikefarah/yq/releases/download/v4.6.3/yq_linux_${PLA
 ADD ./example.env /app/.env
 ADD ./reset-admin.sh /usr/local/bin/reset-admin.sh
 ADD ./docker_entrypoint.sh /usr/local/bin/docker_entrypoint.sh
-ADD ./health-check.sh /usr/local/bin/health-check.sh
 ADD ./migration-from-lt-2-3-9.sh /usr/local/bin/migration-from-lt-2-3-9.sh
 RUN chmod a+x /usr/local/bin/*.sh

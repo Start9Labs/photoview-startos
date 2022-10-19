@@ -47,22 +47,12 @@ migrations:
 health-checks:
   interface:
     name: Web UI
-    success-message: The Web UI is ready to visit
-    type: docker
-    image: main
-    entrypoint: health-check.sh
-    args: ["web"]
-    io-format: json
-    inject: true
+    success-message: Ready to be visited in a web browser
+    type: script
   database:
     name: Database
-    success-message: The backend is reachable via graphQL
-    type: docker
-    image: main
-    entrypoint: health-check.sh
-    args: ["api"]
-    io-format: json
-    inject: true
+    success-message: The API is fully operational
+    type: script
 config: ~
 properties:
   type: script
