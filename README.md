@@ -1,8 +1,10 @@
-# Wrapper for Photoview
+# Wrapper for photoview
 
-This project wraps [Photoview](https://github.com/photoview/photoview) for EmbassyOS.
+[Photoview](https://github.com/photoview/photoview) a simple photo gallery, providing an easy way to organize, navigate, and share photos. This repository creates the `s9pk` package that is installed to run `photoview` on [embassyOS](https://github.com/Start9Labs/embassy-os/).
 
 ## Dependencies
+
+The following set of dependencies are required to build this project. You can find detailed steps to setup your environment below and in the service packaging [documentation](https://github.com/Start9Labs/service-pipeline#development-environment).
 
 - [docker](https://docs.docker.com/get-docker)
 - [docker-buildx](https://docs.docker.com/buildx/working-with-buildx/)
@@ -11,8 +13,8 @@ This project wraps [Photoview](https://github.com/photoview/photoview) for Embas
 - [make](https://www.gnu.org/software/make/)
 - [embassy-sdk](https://github.com/Start9Labs/embassy-os/tree/master/backend)
 
-## Build enviroment
-Prepare your EmbassyOS build enviroment. In this example we are using Ubuntu 20.04.
+## Build environment
+Prepare your embassyOS build environment. In this example we are using Ubuntu 20.04.
 
 1. Install docker
 ```
@@ -54,38 +56,45 @@ cd embassy-os/backend/
 ./install-sdk.sh
 embassy-sdk init
 ```
-Now you are ready to build your **Photoview** service
+Now you are ready to build the `photoview` package!
 
 ## Cloning
 
-Clone the project locally. 
+Clone the project locally:
 
 ```
-git clone https://github.com/Start9Labs/Photoview-wrapper.git
-cd Photoview-wrapper
+git clone https://github.com/Start9Labs/photoview-wrapper.git
+cd photoview-wrapper
 ```
 
 ## Building
 
-To build the **Photoview** service, run the following command:
+To build the `photoview` package, run the following command:
 
 ```
 make
 ```
 
-## Installing (on Embassy)
+## Installing (on embassyOS)
 
 Run the following commands to determine successful install:
-> :information_source: Change embassy-q1w2e3r4.local to your Embassy address
+> :information_source: Change embassy-server-name.local to your Embassy address
 
 ```
 embassy-cli auth login
-#Enter your embassy password
-embassy-cli --host https://embassy-q1w2e3r4.local package install Photoview.s9pk
+# Enter your embassy password
+embassy-cli --host https://embassy-server-name.local package install photoview.s9pk
 ```
-**Tip:** You can also install the Photoview.s9pk using **Sideload Service** under the **Embassy > SETTINGS** section.
-## Verify Install
 
-Go to your Embassy Services page, select **Photoview**, configure and start the service.
+If you already have your `embassy-cli` config file setup with a default `host`, you can install simply by running:
+
+```
+make install
+```
+
+> **Tip:** You can also install the photoview.s9pk using **Sideload Service** under the **Embassy > Settings** section.
+### Verify Install
+
+Go to your Embassy Services page, select **Photoview**, and start the service. Then, verify its interfaces are accessible.
 
 **Done!** 
