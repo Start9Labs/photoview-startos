@@ -90,7 +90,7 @@ sed -i "s/_photoview_password_/"$POSTGRES_PASSWORD"/" /app/.env
 photoview_child=$!
 
 if [ -z "$NEW_USERS" ]; then 
-  sleep 10
+  sleep 20
   echo "Inserting admin user into database..."
   PASS_HASH=$(htpasswd -bnBC 12 "" $POSTGRES_PASSWORD | tr -d ':\n' | sed 's/$2y/$2a/')
   PATH_MD5=$(echo -n /mnt/filebrowser | md5sum | head -c 32)

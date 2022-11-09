@@ -1,9 +1,7 @@
 id: photoview
 title: Photoview
-version: 2.3.13.2
-release-notes: | 
-  * Database Migration to PostgreSQL
-  * Upgrade Photoview v2.3.13
+version: 2.3.13.3
+release-notes: Update to run on x86 architecture
 license: gnu
 wrapper-repo: "https://github.com/Start9Labs/embassyos-photoview-wrapper"
 upstream-repo: "https://github.com/photoview/photoview/tree/master"
@@ -49,22 +47,12 @@ migrations:
 health-checks:
   interface:
     name: Web UI
-    success-message: The Web UI is ready to visit
-    type: docker
-    image: main
-    entrypoint: health-check.sh
-    args: ["web"]
-    io-format: json
-    inject: true
+    success-message: Ready to be visited in a web browser
+    type: script
   database:
     name: Database
-    success-message: The backend is reachable via graphQL
-    type: docker
-    image: main
-    entrypoint: health-check.sh
-    args: ["api"]
-    io-format: json
-    inject: true
+    success-message: The API is fully operational
+    type: script
 config: ~
 properties:
   type: script
