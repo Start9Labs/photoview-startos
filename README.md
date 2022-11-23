@@ -1,18 +1,20 @@
-# Wrapper for Photoview
+# Wrapper for photoview
 
-This project wraps [Photoview](https://github.com/photoview/photoview) for EmbassyOS.
+[Photoview](https://github.com/photoview/photoview) a simple photo gallery, providing an easy way to organize, navigate, and share photos. This repository creates the `s9pk` package that is installed to run `photoview` on [embassyOS](https://github.com/Start9Labs/embassy-os/).
 
 ## Dependencies
+
+Install the system dependencies below to build this project by following the instructions in the provided links. You can also find detailed steps to setup your environment in the service packaging [documentation](https://github.com/Start9Labs/service-pipeline#development-environment).
 
 - [docker](https://docs.docker.com/get-docker)
 - [docker-buildx](https://docs.docker.com/buildx/working-with-buildx/)
 - [yq](https://mikefarah.gitbook.io/yq)
-- [toml](https://crates.io/crates/toml-cli)
-- [appmgr](https://github.com/Start9Labs/embassy-os/tree/master/appmgr)
+- [deno](https://deno.land/)
 - [make](https://www.gnu.org/software/make/)
+- [embassy-sdk](https://github.com/Start9Labs/embassy-os/tree/master/backend)
 
-## Build enviroment
-Prepare your EmbassyOS build enviroment. In this example we are using Ubuntu 20.04.
+## Build environment
+Prepare your embassyOS build environment. In this example we are using Ubuntu 20.04.
 
 1. Install docker
 ```
@@ -33,51 +35,66 @@ docker run --privileged --rm linuxkit/binfmt:v0.8
 ```
 sudo snap install yq
 ```
-5. Install essentials build packages
+5. Install deno
+```
+sudo snap install deno
+```
+6. Install essentials build packages
 ```
 sudo apt-get install -y build-essential openssl libssl-dev libc6-dev clang libclang-dev ca-certificates
 ```
-6. Install Rust
+7. Install Rust
 ```
 curl https://sh.rustup.rs -sSf | sh
 # Choose nr 1 (default install)
 source $HOME/.cargo/env
 ```
-7. Install toml
+8. Build and install embassy-sdk
 ```
-cargo install toml-cli
+cd ~/ && git clone --recursive https://github.com/Start9Labs/embassy-os.git
+cd embassy-os/backend/
+./install-sdk.sh
+embassy-sdk init
 ```
-8. Build and install appmgr
-```
-cd ~/ && git clone https://github.com/Start9Labs/embassy-os.git
-cd embassy-os/appmgr/
-cargo install --path=. --features=portable --no-default-features && cd ~/
-```
-Now you are ready to build your first EmbassyOS service
+Now you are ready to build the `photoview` package!
 
 ## Cloning
 
-Clone the project locally. Note the submodule link to the original project(s). 
+Clone the project locally:
 
 ```
-git clone https://github.com/Start9Labs/hello-world-wrapper.git
-cd hello-world-wrapper
+git clone https://github.com/Start9Labs/photoview-wrapper.git
+cd photoview-wrapper
 ```
 
 ## Building
 
-To build the project, run the following commands:
+To build the `photoview` package, run the following command:
 
 ```
 make
 ```
 
-## Installing (on Embassy)
+## Installing (on embassyOS)
 
-SSH into an Embassy device.
-`scp` the `.s9pk` to any directory from your local machine.
-Run the following command to determine successful install:
+Run the following commands to determine successful install:
+> :information_source: Change embassy-server-name.local to your Embassy address
 
 ```
-sudo appmgr install hello-world.s9pk
+embassy-cli auth login
+# Enter your embassy password
+embassy-cli --host https://embassy-server-name.local package install photoview.s9pk
 ```
+
+If you already have your `embassy-cli` config file setup with a default `host`, you can install simply by running:
+
+```
+make install
+```
+
+> **Tip:** You can also install the photoview.s9pk using **Sideload Service** under the **Embassy > Settings** section.
+### Verify Install
+
+Go to your Embassy Services page, select **Photoview**, and start the service. Then, verify its interfaces are accessible.
+
+**Done!** 

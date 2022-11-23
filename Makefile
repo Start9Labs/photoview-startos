@@ -1,20 +1,35 @@
-ASSETS := $(shell yq e '.assets.[].src' manifest.yaml)
-ASSET_PATHS := $(addprefix assets/,$(ASSETS))
-VERSION := $(shell cat ./Dockerfile | head -n 1 | sed -e 's/^.*://')
+PKG_ID := $(shell yq e ".id" manifest.yaml)
+PKG_VERSION := $(shell yq e ".version" manifest.yaml)
+TS_FILES := $(shell find ./ -name \*.ts)
 
+# delete the target of a rule if it has changed and its recipe exits with a nonzero exit status
 .DELETE_ON_ERROR:
 
-all: photoview.s9pk
+all: verify
 
-install: photoview.s9pk
-	appmgr install photoview.s9pk
+verify: $(PKG_ID).s9pk
+	embassy-sdk verify s9pk $(PKG_ID).s9pk
 
-photoview.s9pk: manifest.yaml config_spec.yaml config_rules.yaml image.tar instructions.md $(ASSET_PATHS)
-	appmgr -vv pack $(shell pwd) -o photoview.s9pk
-	appmgr -vv verify photoview.s9pk
+install: $(PKG_ID).s9pk
+	embassy-cli package install $(PKG_ID).s9pk
 
-image.tar: Dockerfile docker_entrypoint.sh
-	DOCKER_CLI_EXPERIMENTAL=enabled docker buildx build --tag start9/photoview --platform=linux/arm/v7 -o type=docker,dest=image.tar .
+clean:
+	rm -rf docker-images
+	rm -f image.tar
+	rm -f $(PKG_ID).s9pk
+	rm -f scripts/*.js
 
-manifest.yaml: Dockerfile
-	yq e -i '.version = "$(VERSION)"' manifest.yaml
+scripts/embassy.js: $(TS_FILES)
+	deno bundle scripts/embassy.ts scripts/embassy.js
+
+docker-images/x86_64.tar: Dockerfile docker_entrypoint.sh example.env
+	mkdir -p docker-images
+	docker buildx build --tag start9/$(PKG_ID)/main:$(PKG_VERSION) --platform=linux/amd64 --build-arg PLATFORM=amd64 -o type=docker,dest=docker-images/x86_64.tar .
+
+docker-images/aarch64.tar: Dockerfile docker_entrypoint.sh example.env
+	mkdir -p docker-images
+	docker buildx build --tag start9/$(PKG_ID)/main:$(PKG_VERSION) --platform=linux/arm64 --build-arg PLATFORM=arm64 -o type=docker,dest=docker-images/aarch64.tar .
+
+$(PKG_ID).s9pk: manifest.yaml instructions.md LICENSE icon.png scripts/embassy.js docker-images/aarch64.tar docker-images/x86_64.tar
+	if ! [ -z "$(ARCH)" ]; then cp docker-images/$(ARCH).tar image.tar; fi
+	embassy-sdk pack
