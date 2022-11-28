@@ -2,6 +2,7 @@ FROM viktorstrate/photoview:2.3.13
 
 # arm64 or amd64
 ARG PLATFORM
+ARG ARCH
 ENV PHOTOVIEW_DATABASE_DRIVER postgres
 ENV POSTGRES_DB photoview
 ENV PHOTOVIEW_POSTGRES_DB photoview 
@@ -19,10 +20,10 @@ VOLUME $POSTGRES_CONFIG
 
 # Install mariadb mysql database server
 RUN apt-get update \
-  && apt-get install -y mariadb-server wget sqlite3 apache2-utils curl \
-    postgresql \
+  && apt-get install -y mariadb-server wget sqlite3 apache2-utils curl sudo gnupg2
+RUN apt-get install postgresql -y
   # Cleanup
-  && apt-get autoremove -y \
+RUN apt-get autoremove -y \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 

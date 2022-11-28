@@ -1,4 +1,4 @@
 import { compat, types as T } from "../deps.ts";
 
 export const migration: T.ExpectedExports.migration = compat.migrations
-    .fromMapping({}, "2.3.13.3" );
+    .fromMapping({}, "2.3.13.4" );
