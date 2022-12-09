@@ -10,45 +10,12 @@ _term() {
 if test -f /etc/postgresql/14/photoview/postgresql.conf
 then
   # restart
-  echo "postgresql already initialized" >&2
-  echo "starting postgresql..." >&2
+  echo "postgresql already initialized"
+  echo "starting postgresql..."
   service postgresql start
-# elif [[ -f /etc/postgresql/14/photoview/postgresql.conf && -f /etc/postgresql/15/main/postgresql.conf ]]
-# then
-#   # migration from <2.3.13.3
-#   echo 'migrating data directory from postgres 14 to 15...'
-
-#   echo 'first, setting up postgresql 15...' >&2
-#   # set permissions for postgres folders
-#   chown -R postgres:postgres $POSTGRES_DATADIR
-#   chown -R postgres:postgres $POSTGRES_CONFIG
-#   chmod -R 700 $POSTGRES_DATADIR
-#   chmod -R 700 $POSTGRES_CONFIG
-#   mkdir -p /media/start9
-#   su - postgres -c "pg_createcluster 15 main"
-#   # service postgresql initdb
-
-#   su - postgres -c "/usr/lib/postgresql/15/bin/pg_upgrade \
-#     --old-datadir=/var/lib/postgresql/14/photoview \
-#     --new-datadir=/var/lib/postgresql/15/main \
-#     --old-bindir=/usr/lib/postgresql/14/bin \
-#     --new-bindir=/usr/lib/postgresql/15/bin \
-#     --old-options '-c config_file=/etc/postgresql/14/main/postgresql.conf' \
-#     --new-options '-c config_file=/etc/postgresql/15/main/postgresql.conf'"
-
-#   service postgresql start
-#   su - postgres -c "/usr/lib/postgresql/15/bin/vacuumdb --all --analyze-in-stages"
-#   echo 'removing datadirectory for postgresql-14...'
-#   rm -rf /etc/postgresql/14/
-#   ./delete_old_cluster.sh
-#   echo 'migration complete'
-
-#   service postgresql start
-#   su - postgres -c 'psql -c "GRANT USAGE, CREATE ON SCHEMA public TO PUBLIC;"'
-#   # su - postgres -c 'psql -c "ALTER DATABASE '$POSTGRES_DB' OWNER TO '$POSTGRES_USER';"'
 else
   # fresh install
-  echo 'setting up postgresql...' >&2
+  echo 'setting up postgresql...'
   # set permissions for postgres folders
   chown -R postgres:postgres $POSTGRES_DATADIR
   chown -R postgres:postgres $POSTGRES_CONFIG
@@ -56,10 +23,8 @@ else
   chmod -R 700 $POSTGRES_CONFIG
   mkdir -p /media/start9
   su - postgres -c "pg_createcluster 14 photoview"
-  # service postgresql initdb
-  echo "starting postgresql..." >&2
+  echo "starting postgresql..."
   service postgresql start
-  # su - postgres -c 'psql -c "GRANT USAGE, CREATE ON SCHEMA public TO PUBLIC;"'
 fi
 
 

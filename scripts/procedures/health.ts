@@ -1,4 +1,4 @@
-import { types as T, checkWebUrl, catchError } from "../deps.ts";
+import { types as T, checkWebUrl, catchError, ok, isKnownError, errorCode, error } from "../deps.ts";
 
 export const health: T.ExpectedExports.health = {
   // deno-lint-ignore require-await
@@ -13,13 +13,13 @@ export const health: T.ExpectedExports.health = {
   },
 };
 
-// deno-lint-ignore require-await
 const healthWeb: T.ExpectedExports.health[""] = async (effects, duration) => {
+  await guardDurationAboveMinimum({ duration, minimumTime: 30000 });
   return checkWebUrl("http://photoview.embassy")(effects, duration).catch(catchError(effects))
 };
 
 const healthApi: T.ExpectedExports.health[""] = async (effects, duration) => {
-  await guardDurationAboveMinimum({ duration, minimumTime: 15000 });
+  await guardDurationAboveMinimum({ duration, minimumTime: 30000 });
 
   return effects.fetch("http://photoview.embassy:80/api/graphql", {
     method: 'POST',
@@ -37,16 +37,13 @@ const healthApi: T.ExpectedExports.health[""] = async (effects, duration) => {
 
 // *** HELPER FUNCTIONS *** //
 
-// Ensure the starting duration is pass a minimum
-const guardDurationAboveMinimum = (
+// Ensure the starting duration is past a minimum
+export const guardDurationAboveMinimum = (
   input: { duration: number; minimumTime: number },
-) =>
-  (input.duration <= input.minimumTime)
-    ? Promise.reject(errorCode(60, "Starting"))
-    : null;
+) => (input.duration <= input.minimumTime) ? errorCode(60, "Starting") : null;
 
-const errorCode = (code: number, error: string) => ({
-  "error-code": [code, error] as const,
-});
-const error = (error: string) => ({ error });
-const ok = { result: null };
+export const catchError_ = (effects: T.Effects) => (e: unknown) => {
+  if (isKnownError(e)) return e;
+  effects.error(`Health check failed: ${e}`);
+  return error("Error while running health check");
+}

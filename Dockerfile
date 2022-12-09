@@ -18,19 +18,24 @@ VOLUME $POSTGRES_DATADIR
 VOLUME $POSTGRES_CONFIG
 
 # Install mariadb mysql database server
-RUN apt-get update \
-  && apt-get install -y mariadb-server wget sqlite3 apache2-utils curl \
-    postgresql \
+RUN apt-get update -y \
+  && apt-get install -y mariadb-server wget sqlite3 apache2-utils curl wget gnupg ca-certificates \
   # Cleanup
   && apt-get autoremove -y \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
+RUN sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt bookworm-pgdg main" > /etc/apt/sources.list.d/postgresql.list' \
+  && curl https://www.postgresql.org/media/keys/ACCC4CF8.asc \
+  | gpg --dearmor \
+  | tee /etc/apt/trusted.gpg.d/apt.postgresql.org.gpg >/dev/null \
+  && apt-get update -y && apt-get install postgresql-14 -y
+
 RUN wget https://github.com/mikefarah/yq/releases/download/v4.6.3/yq_linux_${PLATFORM}.tar.gz -O - |\
   tar xz && mv yq_linux_${PLATFORM} /usr/bin/yq
 
-ADD ./example.env /app/.env
-ADD ./reset-admin.sh /usr/local/bin/reset-admin.sh
+ADD ./utils/example.env /app/.env
+ADD ./utils/scripts/reset-admin.sh /usr/local/bin/reset-admin.sh
 ADD ./docker_entrypoint.sh /usr/local/bin/docker_entrypoint.sh
-ADD ./migration-from-lt-2-3-9.sh /usr/local/bin/migration-from-lt-2-3-9.sh
+ADD ./utils/scripts/migration-from-lt-2-3-9.sh /usr/local/bin/migration-from-lt-2-3-9.sh
 RUN chmod a+x /usr/local/bin/*.sh

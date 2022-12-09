@@ -1,6 +1,7 @@
 PKG_ID := $(shell yq e ".id" manifest.yaml)
 PKG_VERSION := $(shell yq e ".version" manifest.yaml)
 TS_FILES := $(shell find ./ -name \*.ts)
+UTILS_SRC := $(shell find ./utils/**/*)
 
 # delete the target of a rule if it has changed and its recipe exits with a nonzero exit status
 .DELETE_ON_ERROR:
@@ -22,11 +23,11 @@ clean:
 scripts/embassy.js: $(TS_FILES)
 	deno bundle scripts/embassy.ts scripts/embassy.js
 
-docker-images/x86_64.tar: Dockerfile docker_entrypoint.sh example.env
+docker-images/x86_64.tar: Dockerfile docker_entrypoint.sh $(UTILS_SRC)
 	mkdir -p docker-images
 	docker buildx build --tag start9/$(PKG_ID)/main:$(PKG_VERSION) --platform=linux/amd64 --build-arg PLATFORM=amd64 -o type=docker,dest=docker-images/x86_64.tar .
 
-docker-images/aarch64.tar: Dockerfile docker_entrypoint.sh example.env
+docker-images/aarch64.tar: Dockerfile docker_entrypoint.sh $(UTILS_SRC)
 	mkdir -p docker-images
 	docker buildx build --tag start9/$(PKG_ID)/main:$(PKG_VERSION) --platform=linux/arm64 --build-arg PLATFORM=arm64 -o type=docker,dest=docker-images/aarch64.tar .
 
