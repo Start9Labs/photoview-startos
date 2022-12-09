@@ -7,18 +7,66 @@ _term() {
   kill -TERM "$photoview_child" 2>/dev/null
 }
 
-# set permissions for postgres folders
-chown -R postgres:postgres $POSTGRES_DATADIR
-chown -R postgres:postgres $POSTGRES_CONFIG
-chmod -R 700 $POSTGRES_DATADIR
-chmod -R 700 $POSTGRES_CONFIG
-mkdir -p /media/start9
-service postgresql start
+if test -f /etc/postgresql/14/photoview/postgresql.conf
+then
+  # restart
+  echo "postgresql already initialized" >&2
+  echo "starting postgresql..." >&2
+  service postgresql start
+# elif [[ -f /etc/postgresql/14/photoview/postgresql.conf && -f /etc/postgresql/15/main/postgresql.conf ]]
+# then
+#   # migration from <2.3.13.3
+#   echo 'migrating data directory from postgres 14 to 15...'
+
+#   echo 'first, setting up postgresql 15...' >&2
+#   # set permissions for postgres folders
+#   chown -R postgres:postgres $POSTGRES_DATADIR
+#   chown -R postgres:postgres $POSTGRES_CONFIG
+#   chmod -R 700 $POSTGRES_DATADIR
+#   chmod -R 700 $POSTGRES_CONFIG
+#   mkdir -p /media/start9
+#   su - postgres -c "pg_createcluster 15 main"
+#   # service postgresql initdb
+
+#   su - postgres -c "/usr/lib/postgresql/15/bin/pg_upgrade \
+#     --old-datadir=/var/lib/postgresql/14/photoview \
+#     --new-datadir=/var/lib/postgresql/15/main \
+#     --old-bindir=/usr/lib/postgresql/14/bin \
+#     --new-bindir=/usr/lib/postgresql/15/bin \
+#     --old-options '-c config_file=/etc/postgresql/14/main/postgresql.conf' \
+#     --new-options '-c config_file=/etc/postgresql/15/main/postgresql.conf'"
+
+#   service postgresql start
+#   su - postgres -c "/usr/lib/postgresql/15/bin/vacuumdb --all --analyze-in-stages"
+#   echo 'removing datadirectory for postgresql-14...'
+#   rm -rf /etc/postgresql/14/
+#   ./delete_old_cluster.sh
+#   echo 'migration complete'
+
+#   service postgresql start
+#   su - postgres -c 'psql -c "GRANT USAGE, CREATE ON SCHEMA public TO PUBLIC;"'
+#   # su - postgres -c 'psql -c "ALTER DATABASE '$POSTGRES_DB' OWNER TO '$POSTGRES_USER';"'
+else
+  # fresh install
+  echo 'setting up postgresql...' >&2
+  # set permissions for postgres folders
+  chown -R postgres:postgres $POSTGRES_DATADIR
+  chown -R postgres:postgres $POSTGRES_CONFIG
+  chmod -R 700 $POSTGRES_DATADIR
+  chmod -R 700 $POSTGRES_CONFIG
+  mkdir -p /media/start9
+  su - postgres -c "pg_createcluster 14 photoview"
+  # service postgresql initdb
+  echo "starting postgresql..." >&2
+  service postgresql start
+  # su - postgres -c 'psql -c "GRANT USAGE, CREATE ON SCHEMA public TO PUBLIC;"'
+fi
+
 
 echo 'checking for existing admin user...'
-  export USERS=$(sqlite3 $PHOTOVIEW_SQLITE_PATH 'select * from users;') 
-  export NEW_USERS=$(su - postgres -c 'psql -d '$POSTGRES_DB' -c "select * from users"')
-  sleep 1
+export USERS=$(sqlite3 $PHOTOVIEW_SQLITE_PATH 'select * from users;') 
+export NEW_USERS=$(su - postgres -c 'psql -d '$POSTGRES_DB' -c "select * from users"')
+sleep 1
 
 if [ -f /media/start9/config.yaml ] && ! [ -z "$NEW_USERS" ]; then
   echo 'loading existing admin credentials...'
@@ -64,10 +112,6 @@ if [ -z "$NEW_USERS" ]; then
   fi
 
   echo 'applying database permissions...'
-  su - postgres -c "pg_createcluster 14 photoview"
-  service postgresql start
-  sleep 5
-
   su - postgres -c 'psql -c "UPDATE pg_database SET datistemplate = FALSE WHERE datname = '"'"template1"'"';"'
   su - postgres -c 'psql -c "DROP DATABASE template1;"'
   su - postgres -c 'psql -c "CREATE DATABASE template1 WITH TEMPLATE = template0 ENCODING = '"'"UTF8"'"';"'
@@ -76,6 +120,7 @@ if [ -z "$NEW_USERS" ]; then
   su - postgres -c "createuser $POSTGRES_USER"
   su - postgres -c "createdb $POSTGRES_DB"
   su - postgres -c 'psql -c "ALTER USER '$POSTGRES_USER' WITH ENCRYPTED PASSWORD '"'"$POSTGRES_PASSWORD"'"';"'
+  # su - postgres -c 'psql -c "ALTER DATABASE '$POSTGRES_DB' OWNER TO '$POSTGRES_USER';"'
   su - postgres -c 'psql -c "grant all privileges on database '$POSTGRES_DB' to '$POSTGRES_USER';"'
   su - postgres -c 'echo "localhost:5432:'$POSTGRES_USER':'$POSTGRES_PASSWORD'" >> .pgpass'
   su - postgres -c "chmod -R 0600 .pgpass"
