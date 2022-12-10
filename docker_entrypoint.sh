@@ -85,7 +85,6 @@ if [ -z "$NEW_USERS" ]; then
   su - postgres -c "createuser $POSTGRES_USER"
   su - postgres -c "createdb $POSTGRES_DB"
   su - postgres -c 'psql -c "ALTER USER '$POSTGRES_USER' WITH ENCRYPTED PASSWORD '"'"$POSTGRES_PASSWORD"'"';"'
-  # su - postgres -c 'psql -c "ALTER DATABASE '$POSTGRES_DB' OWNER TO '$POSTGRES_USER';"'
   su - postgres -c 'psql -c "grant all privileges on database '$POSTGRES_DB' to '$POSTGRES_USER';"'
   su - postgres -c 'echo "localhost:5432:'$POSTGRES_USER':'$POSTGRES_PASSWORD'" >> .pgpass'
   su - postgres -c "chmod -R 0600 .pgpass"

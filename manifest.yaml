@@ -99,7 +99,7 @@ backup:
     type: docker
     image: compat
     system: true
-    entrypoint: /mnt/assets/backup.sh
+    entrypoint: /mnt/assets/backup-x.sh
     args: 
       - backup-create
     mounts:
@@ -113,7 +113,7 @@ backup:
     type: docker
     image: compat
     system: true
-    entrypoint: /mnt/assets/backup.sh
+    entrypoint: /mnt/assets/backup-x.sh
     args: 
       - backup-restore
     mounts:
