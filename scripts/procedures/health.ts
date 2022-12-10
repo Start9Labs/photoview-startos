@@ -14,14 +14,31 @@ export const health: T.ExpectedExports.health = {
 };
 
 const healthWeb: T.ExpectedExports.health[""] = async (effects, duration) => {
-  await guardDurationAboveMinimum({ duration, minimumTime: 30000 });
-  return checkWebUrl("http://photoview.embassy")(effects, duration).catch(catchError(effects))
+  const url = 'http://photoview.embassy'
+  let errorValue
+  if (
+    // deno-lint-ignore no-cond-assign
+    errorValue = guardDurationAboveMinimum({ duration, minimumTime: 20000 })
+  ) return errorValue
+
+  return await effects.fetch(url)
+    .then((_) => ok)
+    .catch((e) => {
+      effects.warn(`Error while fetching URL: ${url}`);
+      effects.error(JSON.stringify(e));
+      effects.error(e.toString());
+      return error(`Error while fetching URL: ${url}`);
+    });
 };
 
 const healthApi: T.ExpectedExports.health[""] = async (effects, duration) => {
-  await guardDurationAboveMinimum({ duration, minimumTime: 30000 });
+  let errorValue
+  if (
+    // deno-lint-ignore no-cond-assign
+    errorValue = guardDurationAboveMinimum({ duration, minimumTime: 20000 })
+  ) return errorValue
 
-  return effects.fetch("http://photoview.embassy:80/api/graphql", {
+  return await effects.fetch("http://photoview.embassy:80/api/graphql", {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
