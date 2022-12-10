@@ -4,6 +4,7 @@ version: 2.3.13.3
 release-notes: |
   * Update to run on x86 architecture
   * Fix reset admin user action
+  * Fix backups
 license: gnu
 wrapper-repo: "https://github.com/Start9Labs/embassyos-photoview-wrapper"
 upstream-repo: "https://github.com/photoview/photoview/tree/master"
