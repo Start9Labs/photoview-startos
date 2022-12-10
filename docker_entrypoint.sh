@@ -7,18 +7,31 @@ _term() {
   kill -TERM "$photoview_child" 2>/dev/null
 }
 
-# set permissions for postgres folders
-chown -R postgres:postgres $POSTGRES_DATADIR
-chown -R postgres:postgres $POSTGRES_CONFIG
-chmod -R 700 $POSTGRES_DATADIR
-chmod -R 700 $POSTGRES_CONFIG
-mkdir -p /media/start9
-service postgresql start
+if test -f /etc/postgresql/14/photoview/postgresql.conf
+then
+  # restart
+  echo "postgresql already initialized"
+  echo "starting postgresql..."
+  service postgresql start
+else
+  # fresh install
+  echo 'setting up postgresql...'
+  # set permissions for postgres folders
+  chown -R postgres:postgres $POSTGRES_DATADIR
+  chown -R postgres:postgres $POSTGRES_CONFIG
+  chmod -R 700 $POSTGRES_DATADIR
+  chmod -R 700 $POSTGRES_CONFIG
+  mkdir -p /media/start9
+  su - postgres -c "pg_createcluster 14 photoview"
+  echo "starting postgresql..."
+  service postgresql start
+fi
+
 
 echo 'checking for existing admin user...'
-  export USERS=$(sqlite3 $PHOTOVIEW_SQLITE_PATH 'select * from users;') 
-  export NEW_USERS=$(su - postgres -c 'psql -d '$POSTGRES_DB' -c "select * from users"')
-  sleep 1
+export USERS=$(sqlite3 $PHOTOVIEW_SQLITE_PATH 'select * from users;') 
+export NEW_USERS=$(su - postgres -c 'psql -d '$POSTGRES_DB' -c "select * from users"')
+sleep 1
 
 if [ -f /media/start9/config.yaml ] && ! [ -z "$NEW_USERS" ]; then
   echo 'loading existing admin credentials...'
@@ -64,10 +77,6 @@ if [ -z "$NEW_USERS" ]; then
   fi
 
   echo 'applying database permissions...'
-  su - postgres -c "pg_createcluster 14 photoview"
-  service postgresql start
-  sleep 5
-
   su - postgres -c 'psql -c "UPDATE pg_database SET datistemplate = FALSE WHERE datname = '"'"template1"'"';"'
   su - postgres -c 'psql -c "DROP DATABASE template1;"'
   su - postgres -c 'psql -c "CREATE DATABASE template1 WITH TEMPLATE = template0 ENCODING = '"'"UTF8"'"';"'

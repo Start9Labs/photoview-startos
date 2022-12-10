@@ -1,7 +1,10 @@
 id: photoview
 title: Photoview
 version: 2.3.13.3
-release-notes: Update to run on x86 architecture
+release-notes: |
+  * Update to run on x86 architecture
+  * Fix reset admin user action
+  * Fix backups
 license: gnu
 wrapper-repo: "https://github.com/Start9Labs/embassyos-photoview-wrapper"
 upstream-repo: "https://github.com/photoview/photoview/tree/master"
@@ -74,6 +77,8 @@ volumes:
     type: data
   dbconfig:
     type: data
+  compat:
+    type: assets
 alerts: {}
 interfaces:
   main:
@@ -95,34 +100,34 @@ backup:
     type: docker
     image: compat
     system: true
-    entrypoint: compat
-    args:
-      - duplicity
-      - create
-      - /mnt/backup
-      - /media
+    entrypoint: /mnt/assets/backup-x.sh
+    args: 
+      - backup-create
     mounts:
       BACKUP: /mnt/backup
       main: /media
+      db: /var/lib/postgresql/14
+      dbconfig: /etc/postgresql/14
+      compat: /mnt/assets
     io-format: yaml
   restore:
     type: docker
     image: compat
     system: true
-    entrypoint: compat
-    args:
-      - duplicity
-      - restore
-      - /mnt/backup
-      - /media
+    entrypoint: /mnt/assets/backup-x.sh
+    args: 
+      - backup-restore
     mounts:
       BACKUP: /mnt/backup
       main: /media
+      db: /var/lib/postgresql/14
+      dbconfig: /etc/postgresql/14
+      compat: /mnt/assets
     io-format: yaml
 actions:
   reset-admin:
-    name: Reset Root User
-    description: Resets your root user (the first user) to username "admin" and a random password; restores any lost admin privileges.
+    name: Reset Admin User
+    description: Restores lost admin privileges by resetting your root user with the username "admin" and a random password.
     warning: This will invalidate existing sessions and password managers if you have them set up.
     allowed-statuses:
       - stopped
@@ -134,4 +139,6 @@ actions:
       args: []
       mounts:
         main: /media
+        db: /var/lib/postgresql/14
+        dbconfig: /etc/postgresql/14
       io-format: json

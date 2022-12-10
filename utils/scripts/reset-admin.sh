@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ensure start9 directory exists if action is run before first run of service
-mkdir /media/start9
+mkdir -p /media/start9
 export PASS=$(cat /dev/urandom | base64 | head -c 16)
 echo 'version: 2' > /media/start9/stats.yaml
 echo 'data:' >> /media/start9/stats.yaml
@@ -21,17 +21,21 @@ echo '    masked: true' >> /media/start9/stats.yaml
 echo '    qr: false' >> /media/start9/stats.yaml
 
 export PASS_HASH=$(htpasswd -bnBC 12 "" $PASS | tr -d ':\n' | sed 's/$2y/$2a/')
-export PHOTOVIEW_SQLITE_PATH="/media/photoview.db"
 
-USERS=$(sqlite3 $PHOTOVIEW_SQLITE_PATH "select * from users where id = 1;")
+service postgresql start &>/dev/null
+USERS=$(su - postgres -c 'psql -d '$POSTGRES_DB' -c "select * from users"')
 if [ -z $USERS ]; then
-  sqlite3 $PHOTOVIEW_SQLITE_PATH "insert into users (id, created_at, updated_at, username, password, admin) values (1, datetime('now'), datetime('now'), 'admin', '$PASS_HASH', true);"
+  PASS_HASH=$(htpasswd -bnBC 12 "" $PASS | tr -d ':\n' | sed 's/$2y/$2a/')
   PATH_MD5=$(echo -n /mnt/filebrowser | md5sum | head -c 32)
-  sqlite3 $PHOTOVIEW_SQLITE_PATH "insert or ignore into albums (id, created_at, updated_at, title, parent_album_id, path, path_hash) values (1, datetime('now'), datetime('now'), 'filebrowser', NULL, '/mnt/filebrowser', '$PATH_MD5');"
-  sqlite3 $PHOTOVIEW_SQLITE_PATH "insert or ignore into user_albums (album_id, user_id) values (1,1);"
-  sqlite3 $PHOTOVIEW_SQLITE_PATH "update site_info set initial_setup = false;"
+  USER_INSERT="INSERT INTO users (id, created_at, updated_at, username, password, admin) VALUES (21, current_timestamp, current_timestamp, 'admin', '$PASS_HASH', true);"
+  ALBUM_INSERT="INSERT INTO albums (id, created_at, updated_at, title, parent_album_id, path, path_hash) VALUES (21, current_timestamp, current_timestamp, 'filebrowser', NULL, '/mnt/filebrowser', '$PATH_MD5');"
+  JOIN_INSERT="INSERT INTO user_albums (album_id, user_id) VALUES (21, 21);"
+  INFO_UPDATE="update site_info set initial_setup = false;"
+  echo "begin; $USER_INSERT $ALBUM_INSERT $JOIN_INSERT $INFO_UPDATE commit;" | su - postgres -c "psql -d '$POSTGRES_DB'" &>/dev/null
 fi
-sqlite3 $PHOTOVIEW_SQLITE_PATH "update users set password = '$PASS_HASH', username = 'admin' where id = 1;"
+SET_PW="UPDATE users SET password = '$PASS_HASH', username = 'admin' WHERE id = 21;"
+echo $SET_PW | su - postgres -c "psql -d '$POSTGRES_DB'" &>/dev/null
+service postgresql stop &>/dev/null
 action_result="    {
     \"version\": \"0\",
     \"message\": \"Here is your new password. This will also be reflected in the Properties page for this service.\",
